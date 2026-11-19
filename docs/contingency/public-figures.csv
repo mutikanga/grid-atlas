@@ -1,0 +1,251 @@
+figure,value,unit,period,source_url,confidence
+installed_capacity_national,2052.7,MW,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+installed_capacity_on_grid,2049.0,MW,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+installed_capacity_hydro,1715.1,MW,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+installed_capacity_thermal,100.0,MW,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+installed_capacity_solar_pv,88.3,MW,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+installed_capacity_bagasse,148.9,MW,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+installed_capacity_national,1847.5,MW,2023,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+installed_capacity_national,2094.6,MW,2025 (ERA annual report year),https://www.era.go.ug/download/annual-integrated-report-for-the-financial-year-ended-30th-june-2025/,high
+installed_capacity_uetcl_basis,2026.7,MW,FY2023/24,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+installed_capacity_uetcl_basis,2037.5,MW,FY2024/25,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+installed_capacity_press,2098,MW,2026-05,https://www.monitor.co.ug/uganda/news/national/kenya-targets-more-ugandan-electricity-in-2027-5454454,medium
+available_firm_capacity,1550,MW,2026-02,https://www.monitor.co.ug/uganda/news/national/kenya-targets-more-ugandan-electricity-in-2027-5454454,medium
+system_reserve_margin,12.83,%,FY2024/25,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+installed_capacity_national,not found,MW,2026 (official),,
+peak_demand_system,987.8,MW,2023,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+peak_demand_domestic,867.9,MW,2023,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+peak_demand_system,1117.9,MW,2024 (Dec 2024),https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+peak_demand_domestic,972.9,MW,2024 (Dec 2024),https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+peak_demand_system,1000.12,MW,2024-07,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+peak_demand_system,1095.98,MW,2024-11,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-first-quarter-january-to-march-of-2026/,high
+peak_demand_domestic,944.57,MW,2024-11,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-first-quarter-january-to-march-of-2026/,high
+peak_demand_system,1029.9,MW,FY2023/24,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+peak_demand_system,1202.9,MW,FY2024/25,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+peak_demand_domestic,1044.2,MW,FY2024/25,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+peak_demand_system,1202.85,MW,2025-06,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+peak_demand_domestic,1023.21,MW,2025-06,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+peak_demand_system,1287.43,MW,2025-07,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+peak_demand_domestic,1069.50,MW,2025-07,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+peak_demand_shoulder,1105.52,MW,2025-07,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+demand_offpeak_max,877.03,MW,2025-07,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+demand_minimum,554.64,MW,2025-07,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+peak_demand_system,1335.80,MW,2025-09,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-first-quarter-january-to-march-of-2026/,high
+peak_demand_domestic,1157.24,MW,2025-09,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-first-quarter-january-to-march-of-2026/,high
+peak_demand_maximum_secondary,1345.3,MW,2025-12,https://en.wikipedia.org/wiki/Uganda_Electricity_Distribution_Company_Limited,low
+peak_demand_system,1310.71,MW,2026-01,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high
+peak_demand_domestic,1141.64,MW,2026-01,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high
+peak_demand_system,1337.15,MW,2026-02,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high
+peak_demand_domestic,1187.68,MW,2026-02,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high
+peak_demand_shoulder,1223.74,MW,2026-02,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high
+demand_offpeak_max,1089.04,MW,2026-02,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high
+demand_minimum,667.99,MW,2026-02,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high
+peak_demand_system,1375.614,MW,2026-04,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+peak_demand_domestic,1197.84,MW,2026-04,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+peak_demand_shoulder,1207.18,MW,2026-04,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+demand_offpeak_max,1040.91,MW,2026-04,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+demand_minimum,515.82,MW,2026-04,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+peak_demand_system,1388.44,MW,2026-05,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+peak_demand_domestic,1199.53,MW,2026-05,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+peak_demand_shoulder,1302.12,MW,2026-05,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+demand_offpeak_max,1034.92,MW,2026-05,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+demand_minimum,740.52,MW,2026-05,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+export_at_peak_tanzania,26.69,MW,2026-05,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+export_at_peak_kenya,100.02,MW,2026-05,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+export_at_peak_rwanda,83.79,MW,2026-05,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+peak_demand_system,1329.27,MW,2025-08 (ERA-TRR-Q3-26 Figure 1 data label),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+peak_demand_system,1297.52,MW,2025-10 (ERA-TRR-Q3-26 Figure 1 data label),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+peak_demand_system,1350.61,MW,2025-11 (ERA-TRR-Q3-26 Figure 1 data label),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+peak_demand_system,1345.28,MW,2025-12 (ERA-TRR-Q3-26 Figure 1 data label),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+peak_demand_system,1330.67,MW,2026-03 (ERA-TRR-Q3-26 Figure 1 data label),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+peak_demand_system,not found,MW,2026-06 to 2026-10,,
+peak_demand_domestic,not found,MW,2025-08; 2025-10 to 2025-12; 2026-03 (ERA Figure 1 plots the line without labels); 2026-06 to 2026-10,,
+demand_uedcl_distribution,986.4,MW,2025-04,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+demand_uedcl_distribution,1217.7,MW,2026-03,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+energy_generated_to_grid,6788.5,GWh,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+energy_generated_to_grid,6032.3,GWh,2023,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+uetcl_energy_purchases,6622.6,GWh,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+uetcl_energy_purchases,6027.8,GWh,2023,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+uetcl_purchases_large_hydro,5003.6,GWh,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+uetcl_purchases_small_hydro,944.9,GWh,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+uetcl_purchases_bagasse,433.8,GWh,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+uetcl_purchases_thermal,74.9,GWh,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+uetcl_purchases_solar,115.4,GWh,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+uetcl_purchases_imports,49.9,GWh,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+uetcl_energy_sales,6301.1,GWh,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+uetcl_sales_umeme,5572.0,GWh,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+uetcl_sales_exports,478.1,GWh,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+uetcl_sales_uedcl,223.4,GWh,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+uetcl_sales_minigrids,27.6,GWh,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+uetcl_energy_purchases,6333.7,GWh,FY2023/24,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+uetcl_energy_purchases,7055.2,GWh,FY2024/25,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+uetcl_energy_sales,6031.1,GWh,FY2023/24,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+uetcl_energy_sales,6745.08,GWh,FY2024/25,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+uetcl_exports,494.0,GWh,FY2023/24,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+uetcl_exports,535.9,GWh,FY2024/25,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+domestic_generation,7827.5,GWh,2025,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+monthly_energy_purchases_uedcl_data,534.6,GWh,2025-01,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+monthly_energy_purchases_uedcl_data,622.7,GWh,2026-03,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+forecast_annualised_uetcl_purchases,9092.49,GWh,Q3 2026 (ERA forecast),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+forecast_annualised_sales_to_distributors,7242.8,GWh,Q4 2025 (ERA forecast),https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high (forecast)
+forecast_annualised_sales_to_distributors,8061.8,GWh,Q1 2026 (ERA forecast),https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high (forecast)
+forecast_annualised_sales_to_distributors,7827.6,GWh,Q2 2026 (ERA forecast),https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high (forecast)
+forecast_annualised_sales_to_distributors,8217.1,GWh,Q3 2026 (ERA forecast),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+forecast_annualised_sales_uedcl,7324.9,GWh,Q3 2026 (ERA forecast),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+forecast_annualised_sales_export,477.4,GWh,Q3 2026 (ERA forecast),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+forecast_annualised_sales_data_centres,856.5,GWh,Q3 2026 (ERA forecast),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+forecast_annualised_sales_total,8694.5,GWh,Q3 2026 (ERA forecast),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+forecast_annualised_sales_uedcl,7633.8,GWh,2026 base (ERA forecast),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+forecast_annualised_sales_export,731.1,GWh,2026 base (ERA forecast),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+forecast_annualised_sales_data_centres,400.3,GWh,2026 base (ERA forecast),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+forecast_annualised_sales_total,8792.9,GWh,2026 base (ERA forecast),https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+energy_sent_out,not found,GWh,any,,
+monthly_energy_series_purchases_sent_out_delivered,not found,GWh,2024-2026,,
+energy_delivered_central_region,not found,GWh,any,,
+transmission_losses,4.85,%,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+transmission_loss_target_era,4.6,%,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+transmission_losses,4.8,%,2023,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+transmission_losses_gwh,321.5,GWh,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,derived (purchases 6622.6 minus sales 6301.1)
+transmission_losses,4.79,%,FY2022/23,https://businesstimesug.com/uetcl-sustains-growth-expanded-capacity/,medium
+transmission_losses,4.28,%,FY2021/22,https://businesstimesug.com/uetcl-sustains-growth-expanded-capacity/,medium
+transmission_losses,4.78,%,FY2023/24,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+transmission_losses,4.40,%,FY2024/25,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+transmission_losses_gwh,310.1,GWh,FY2024/25,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,derived (purchases 7055.2 minus sales 6745.08)
+technical_loss_kpi_baseline,4.46,%,FY2024/25,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+technical_loss_kpi_target,4,%,FY2029/30,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+era_transmission_loss_factor,4.65,%,2023,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+era_transmission_loss_factor,4.60,%,2024,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+era_transmission_loss_factor,3.56,%,2025,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+era_transmission_loss_factor,4.62,%,2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+era_transmission_loss_factor,4.69,%,2027,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+era_transmission_loss_factor,4.62,%,2028,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+transmission_losses,not found,%,CY2025 and 2026 actual,,
+transmission_losses_by_voltage,not found,%,any,,
+bst_peak,329.1,UGX/kWh,Q3 2025,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+bst_shoulder,263.1,UGX/kWh,Q3 2025,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+bst_offpeak,186.4,UGX/kWh,Q3 2025,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+bst_peak,318.2,UGX/kWh,Q4 2025,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+bst_shoulder,250.2,UGX/kWh,Q4 2025,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+bst_offpeak,171.1,UGX/kWh,Q4 2025,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+bst_peak,328.2,UGX/kWh,Q1 2026,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-first-quarter-january-to-march-of-2026/,high
+bst_shoulder,259.8,UGX/kWh,Q1 2026,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-first-quarter-january-to-march-of-2026/,high
+bst_offpeak,184.4,UGX/kWh,Q1 2026,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-first-quarter-january-to-march-of-2026/,high
+bst_peak,341.3,UGX/kWh,Q2 2026,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high
+bst_shoulder,272.8,UGX/kWh,Q2 2026,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high
+bst_offpeak,197.4,UGX/kWh,Q2 2026,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high
+bst_peak,342.3,UGX/kWh,Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+bst_shoulder,269.8,UGX/kWh,Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+bst_offpeak,189.9,UGX/kWh,Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+bst_approved,not found,UGX/kWh,Q4 2026,,
+bst_proposed_by_uetcl_application,248.66,UGX/kWh,2024 (application not approval),https://businesstimesug.com/inside-the-shs1-7tn-power-companies-applications-to-era-to-set-end-user-tariffs/,medium
+bulk_supply_costs_annualised,1759068,UGX million,Q3 2025,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+bulk_supply_costs_annualised,1952738,UGX million,Q4 2025,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-fourth-quarter-october-to-december-of-2025/,high
+bulk_supply_costs_annualised,2276597,UGX million,Q1 2026,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-first-quarter-january-to-march-of-2026/,high
+bulk_supply_costs_annualised,2234548,UGX million,Q2 2026,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high
+bulk_supply_costs_annualised,2303781,UGX million,Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+power_purchase_costs_annualised,2096086,UGX million,Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+transmission_om_cost_effective,206685,UGX million,Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+deemed_energy_payments,not found,UGX,2024,,
+deemed_energy_payments,not found,UGX,2025,,
+deemed_energy_payments,not found,UGX,2026,,
+deemed_energy_cost_historical,104.4,UGX billion,about FY2019/20,https://monitor.co.ug/uganda/business/technology/taxpayers-lose-shs104-4b-to-uetcl-s-non-evacuated-power--3253858,low
+deemed_energy_achwa_annual,24,USD million per year,2019 to 2023-11,https://businesstimesug.com/inside-the-shs1-7tn-power-companies-applications-to-era-to-set-end-user-tariffs/,medium
+plant_capacity_namanve_hfo,50,MW,2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+plant_forecast_purchase_namanve_hfo,65676,MWh (annualised forecast),Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+plant_forecast_cost_namanve_hfo,72.79,UGX billion (annualised forecast),Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+plant_capacity_kabulasoke_solar,20,MWp,2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+plant_forecast_purchase_kabulasoke_solar,29325,MWh (annualised forecast),Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+plant_capacity_nkonge_solar,20,MWp,2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+plant_forecast_purchase_nkonge_solar,39862,MWh (annualised forecast),Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+plant_capacity_kapeeka_solar,not found,MW,any,,
+plant_capacity_tororo_solar_pv,10,MWp,2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+plant_forecast_purchase_tororo_solar_pv,21904,MWh (annualised forecast),Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+plant_capacity_tororo_solar_north,10,MWp,2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+plant_forecast_purchase_tororo_solar_north,15692,MWh (annualised forecast),Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+plant_capacity_electromaxx_tororo,50,MW,2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+plant_forecast_purchase_electromaxx_tororo,61320,MWh (annualised forecast),Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+plant_capacity_bujagali,250,MW,2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+plant_forecast_purchase_bujagali,1697228,MWh (annualised forecast),Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+plant_capacity_nalubaale_kiira,380,MW,2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+plant_capacity_nalubaale,180,MW,,https://en.wikipedia.org/wiki/List_of_power_stations_in_Uganda,medium
+plant_capacity_kiira,200,MW,,https://en.wikipedia.org/wiki/List_of_power_stations_in_Uganda,medium
+plant_forecast_purchase_nalubaale_kiira,1781193,MWh (annualised forecast),Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+plant_capacity_isimba,183,MW,2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+plant_forecast_purchase_isimba,1182716,MWh (annualised forecast),Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+plant_capacity_karuma,600,MW,2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+plant_forecast_purchase_karuma,1919926,MWh (annualised forecast),Q3 2026,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high (forecast)
+plant_monthly_output_actual,not found,MWh,any,,
+circuit_length_66kv,35.2,km,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+circuit_length_132kv,3319.5,km,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+circuit_length_132kv_cable,0.9,km,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+circuit_length_220kv,1002,km,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+circuit_length_400kv,606,km,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+circuit_length_total,4962.2,km,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+hv_grid_length,5287.2,km,FY2024/25,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+transmission_network_length,5139.7,km,2024,https://www.era.go.ug/download/electricity-supply-industry-performance-report-for-the-year-2024-2/,high
+transformer_capacity_400_220kv,1302,MVA,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+transformer_capacity_400_132kv,630,MVA,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+transformer_capacity_220_132kv,2120,MVA,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+transformer_capacity_132_33kv,2555.5,MVA,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+transformer_capacity_132_11kv,220,MVA,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+transformer_capacity_66_11kv,28,MVA,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+transformer_capacity_mobile_132_33_11kv,50,MVA,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+transformer_capacity_total,6905.5,MVA,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+transformer_capacity_total,7170.5,MVA,FY2024/25,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+substations_count,43,count,2024-07,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+substations_count_kpi_baseline,42,count,FY2024/25,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+grid_availability,98.6,%,FY2024/25,https://uetcl.go.ug/wp-content/uploads/2026/02/UETCL-Strategic-Plan-2025-30-Abridged-Version_.pdf,high
+line_length_kawanda_masaka_220kv,137,km,2018-2019,https://powerline.net.in/2019/05/13/ugandas-uetcl-commissions-220-kv-kawanda-masaka-line/,medium
+line_cost_kawanda_masaka_budget,153.2,USD million,budget,https://en.wikipedia.org/wiki/Kawanda%E2%80%93Birembo_High_Voltage_Power_Line,low
+line_length_bujagali_kawanda_220kv,75,km,project plan,https://www.afdb.org/en/news-and-events/uganda-us-29-million-for-bujagali-power-interconnection-project-3471,low
+transformer_bujagali_220_132kv,250,MVA,Kampala Metro project,https://uetcl.go.ug/project/kampalametroproject/,low (unverified: not on the cited page when checked 2026-11-01)
+kampala_metro_project_progress,61,%,FY2024/25,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+kampala_metro_lot_buloba_progress,100,%,2026-01/02,https://uetcl.go.ug/project/kampalametroproject/,high
+kampala_metro_lot_mutundwe_progress,94,%,2026-01/02,https://uetcl.go.ug/project/kampalametroproject/,high
+kampala_metro_lot_bujagali_progress,99,%,2026-01/02,https://uetcl.go.ug/project/kampalametroproject/,high
+kampala_metro_lot_new_mukono_progress,97,%,2026-01/02,https://uetcl.go.ug/project/kampalametroproject/,high
+kampala_metro_lot_namungoona_progress,76,%,2026-01/02,https://uetcl.go.ug/project/kampalametroproject/,high
+kampala_metro_132kv_reconductoring_progress,71,%,2026-01/02,https://uetcl.go.ug/project/kampalametroproject/,high
+line_length_matugga_kasana_132kv,42.5,km,planned 2026-06,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+matugga_kasana_progress,85,%,FY2024/25,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+transformer_kasana_132_33kv,20,MVA,planned 2026-06,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+line_length_western_132kv_upgrade,359,km,contract 2025-12-19,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+substation_loading_mutundwe,130.2,% of capacity,2025-2026,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+substation_loading_busunju,124.2,% of capacity,2025-2026,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+substation_loading_kajjansi,104.6,% of capacity,2025-2026,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+transformers_critically_loaded,36,count (of 94 assessed),2025-2026,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+major_substations_over_80pct,13,count,2025-09,https://allafrica.com/stories/202509160603.html,low
+major_substations_over_80pct,11,count,2025-07,https://allafrica.com/stories/202507100633.html,low
+greater_kampala_transmission_capacity_current,80,MW,2026-10 (as reported),https://www.monitor.co.ug/uganda/news/national/uedcl-rolls-out-massive-infrastructure-upgrades-to-fix-greater-kampala-power-outages-5617548,low
+greater_kampala_transmission_capacity_planned,200,MW,no date given,https://www.monitor.co.ug/uganda/news/national/uedcl-rolls-out-massive-infrastructure-upgrades-to-fix-greater-kampala-power-outages-5617548,low
+transformer_kampala_south_new,14,MVA (10/14 rating),2025,https://plusnews.ug/?p=36426,medium
+substation_mva_lugogo_queensway_kampala_north_mukono_namanve,not found,MVA,any,,
+load_shedding_national,534.73,MWh,2026-01,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high
+load_shedding_national,493.03,MWh,2026-02,https://www.era.go.ug/download/main-grid-tariff-review-report-for-the-second-quarter-april-to-june-of-2026/,high
+load_shedding_national,206.26,MWh,2026-04,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+load_shedding_national,249.46,MWh,2026-05,https://www.era.go.ug/download/tariff-review-report-for-the-third-quarter-july-to-september-of-2026/,high
+load_shedding_national,not found,MWh,2026-03; 2026-06 to 2026-10,,
+unplanned_load_shedding_energy_not_supplied,6.93,GWh,2025,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+energy_lost_transmission_faults,12.75,GWh,2025,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+uedcl_transmission_interruptions,46,count,2026-03,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+uedcl_transmission_interruption_hours,299.06,h,2026-03,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+uedcl_transmission_interruption_energy,1.44,GWh,2026-03,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+bujagali_busbar_failure_generation_lost,340,MW (more than),2025-2026,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+line_interruptions_mutundwe_masaka_central,420,count,2025,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+line_interruptions_mukono_north_mpata,396,count,2025,https://www.monitor.co.ug/uganda/news/national/the-troubles-at-uedcl-that-got-bosses-sacked-5445982,medium
+data_centre_or_industrial_curtailment,not found,MW or MWh,2026,,
+kawanda_transformer_capacity,not found,MVA,any,,
+kawanda_service_radius,150,km (over),FY2024/25,https://uetcl.go.ug/2026/03/30/uetcl-annual-report-for-the-period-ended-30th-june-2025/,high
+kawanda_distance_from_kampala,15.5,km,,https://en.wikipedia.org/wiki/Kawanda%E2%80%93Birembo_High_Voltage_Power_Line,low
+namanve_park_area,2209,acres,,https://en.wikipedia.org/wiki/Namanve,low
+namanve_park_operational_factories,not found,count,2025-2026,,
+namanve_substation_rating,189,MW,undated,https://sanyufm.com/?p=5400,low
+kapeeka_park_factories,34,count,2025-12,https://ugandainvest.go.ug/kapeeka-industrial-park-from-rural-farmland-to-34-factories-in-10-years/,medium
+kapeeka_park_factory_capacity,80,count,2025-12,https://ugandainvest.go.ug/kapeeka-industrial-park-from-rural-farmland-to-34-factories-in-10-years/,medium
+kapeeka_park_area,2500,acres,undated,https://www.monitor.co.ug/uganda/news/national/museveni-wants-kapeeka-upgraded-to-municipality-1863318,low
+kapeeka_park_substation,100,MW,undated,https://ugandainvest.go.ug/kapeeka-industrial-park-from-rural-farmland-to-34-factories-in-10-years/,low
+kapeeka_distribution_extension_length,15,km,undated,https://www.monitor.co.ug/uganda/business/prosper/shs1-3b-to-expand-power-network-in-kapeeka-park-1850766,low
+kapeeka_distribution_extension_cost,1.3,UGX billion,undated,https://www.monitor.co.ug/uganda/business/prosper/shs1-3b-to-expand-power-network-in-kapeeka-park-1850766,low
+industrial_park_demand_namanve_kapeeka,not found,MW,any,,
+mission300_compact_demand_capacity_targets,not found,MW,2030,,
+ubos_electricity_statistics,not found,GWh,any,,

@@ -1,0 +1,58 @@
+id = "T10"
+slug = "growth"
+title = "Demand growth rates for the 2030 case"
+holder = "Grid Atlas team, from Planning's load forecast, the National Energy Compact, NDP IV and UBOS"
+requests = [15]
+dataset = "growth"
+criticality = "medium"
+period = "From the base year 2026 (the September 2025 to September 2026 data) to 2030"
+intro = """
+WHAT THIS IS FOR
+The Grid Atlas shows the Central network in 2030 as well as today: the 2030 stop on the map, the MW each candidate site can take in 2030 (acceptance criterion 5) and N-1 on the 2030 peak.
+If Planning sends its 2030 case with a load forecast per bulk supply point (request 2), the Atlas uses those loads directly.
+If not, it grows each substation's load from the September 2025 to September 2026 data at the rate in this workbook, then adds the committed large loads from T08 (sheet committed_loads) at their own substations:
+   load in 2030 = load in 2026 x (1 + rate/100) ^ (2030 - 2026), plus the committed loads
+The Kawanda page also uses the base rate, to show how many years of growth the spare capacity at Kawanda allows.
+
+WHERE THE RATE COMES FROM, IN ORDER OF PREFERENCE
+1. Planning's own load forecast, per bulk supply point or for Central (requests 2 and 3). It keeps the Atlas consistent with Planning's studies. Work out the compound rate per substation, or one rate for Central.
+2. A published path for electricity demand, such as the one in Uganda's National Energy Compact under Mission 300.
+3. A GDP growth rate (the NDP IV targets, or UBOS GDP statistics) turned into a demand growth rate. A GDP rate is not a demand rate: record the published figure, the conversion and its source in derivation.
+Your native format is welcome; this workbook lists the minimum fields. Rates you considered and rejected go in the 2030 method note, not here: this workbook holds only the rates the engine uses.
+
+THE MINIMUM
+One row: scope central, scenario base, year_from 2026, year_to 2030, with its source. Add low and high rows so that the 2030 results can be shown as a range. Add a substation row only where a source gives that substation its own forecast.
+
+RULES
+- One rate per scope, substation, scenario and period. A substation row overrides the Central rate for that substation. A national row applies to loads outside Central when the model is the whole national network.
+- The rate is compound growth of peak demand, in percent per year: 5 means 5 %, not 0.05. If a source gives separate rates for peak (MW) and energy (MWh), use the peak rate and put the energy rate in notes.
+- Count large new loads once. The engine adds the T08 committed loads (data centres, industrial parks, SGR traction) on top of the rate. If a source's rate already includes them, set includes_spot_loads to Y, and say in the 2030 method note how the double count is removed.
+- Every rate has a source. Until one is chosen, enter a stand-in with status placeholder; every 2030 figure built on it carries the same label.
+- Agree the base rate with the Planning mentor (status agreed) before any 2030 figure is shown outside the team.
+
+DELIVERY AND HANDLING
+Rates taken from Planning's forecast are internal UETCL information. Keep the filled workbook in the Grid Atlas folder on the UETCL share or in the landing folder on the Grid Atlas server.
+Never use personal email, WhatsApp, personal cloud storage or a USB stick of unknown origin. Keep a copy of every source page used. No personal data.
+"""
+
+[[sheets]]
+name = "growth_rates"
+table = "team_growth_rate"
+title = "Demand growth rates"
+grain = "one row per scope, substation, scenario and period"
+key = ["scope", "substation", "scenario", "year_from", "year_to"]
+notes = "Compound growth of peak demand in percent per year: 5 means 5 %. A substation row overrides the Central rate for that substation. Every row needs a source."
+columns = [
+  { name = "scope", type = "enum", enum = ["central", "substation", "national"], required = true, desc = "central (default for every Central substation), substation (overrides central) or national (loads outside Central)", example = "central" },
+  { name = "substation", type = "text", desc = "Substation code, e.g. EXA, when scope is substation; blank otherwise", example = "" },
+  { name = "year_from", type = "int", required = true, min = 2020, max = 2040, desc = "Base year of the loads grown: 2026 for this data", example = 2026 },
+  { name = "year_to", type = "int", required = true, min = 2021, max = 2050, desc = "Target year, after year_from: 2030 for the 2030 case", example = 2030 },
+  { name = "rate_pct_per_yr", type = "number", unit = "% per year", required = true, min = -20, max = 50, warn_min = 0, warn_max = 15, desc = "Compound growth of peak demand; 5 means 5 %", example = 5.0 },
+  { name = "scenario", type = "enum", enum = ["low", "base", "high"], required = true, desc = "Scenario; base is used unless a range is shown", example = "base" },
+  { name = "source", type = "text", required = true, desc = "Document, publisher, year, and table or page", example = "Example Agency, Example Forecast 2026, table 3" },
+  { name = "measure", type = "enum", enum = ["peak_demand", "energy_demand", "gdp", "other"], desc = "What the source's own figure measures", example = "peak_demand" },
+  { name = "derivation", type = "text", desc = "How the rate was worked out from the source, including any conversion", example = "Example: 100 MW in 2026 to 121.6 MW in 2030 is 5.0 % a year" },
+  { name = "includes_spot_loads", type = "yn", desc = "Y if the rate already includes the T08 committed loads", example = "N" },
+  { name = "status", type = "enum", enum = ["placeholder", "proposed", "agreed"], desc = "placeholder, proposed (sourced) or agreed (with the Planning mentor)", example = "proposed" },
+  { name = "notes", type = "text", desc = "Anything else, e.g. a separate energy growth rate", example = "" },
+]

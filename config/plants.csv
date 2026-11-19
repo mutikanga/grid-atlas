@@ -1,0 +1,8 @@
+plant_code,name,technology,ss_code,connection_kv,source
+NMVT,Namanve thermal,thermal,NMV,132,"approximate, synthetic default, replace from T06"
+KBSS,Kabulasoke solar,solar,KBS,33,"approximate, synthetic default, replace from T06"
+NKGS,Nkonge solar,solar,NKG,33,"approximate, synthetic default, replace from T06"
+KAPS,Kapeeka solar,solar,KAP,33,"approximate, synthetic default, replace from T06"
+BUJH,Bujagali,hydro,BUJ,220,"approximate, synthetic default, replace from T06"
+NALH,Nalubaale/Kiira,hydro,NAL,132,"approximate, synthetic default, replace from T06"
+KARH,Karuma,hydro,KAR,400,"approximate, synthetic default, replace from T06"

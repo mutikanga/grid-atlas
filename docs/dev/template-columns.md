@@ -1,0 +1,377 @@
+# Template column contract
+
+These columns **must** exist with exactly these names and types. The loaders, the synthetic generator and the engine depend on them.
+- Agents writing `templates/spec/*.toml` may add columns, but must not rename or drop these.
+- `req` marks columns that are required in the spec.
+- Types are as in `docs/dev/contracts.md` §3.
+- Enum values are exact strings.
+- T01 and T12 are already written (`templates/spec/`); they are the reference for style.
+
+## T02 gis (Planning GIS unit): prefix gis_
+- **substations**: vector, Point → `gis_substation`
+  - `source_id` text req: your feature ID
+  - `name` text req
+  - `ss_code` text: our code, if known
+  - `kv_levels` text, e.g. "220/132/33"
+  - `model_bus_ids` text: Planning model bus numbers, separated by `;`
+  - `status` enum existing|committed|planned req
+  - `commissioning_year` int
+- **circuits**: vector, LineString → `gis_circuit`. One feature per circuit.
+  - `circuit_id` text req: your feature ID
+  - `model_branch_id` text: T01 line_id
+  - `name` text
+  - `from_substation` text req
+  - `to_substation` text req
+  - `kv` number req
+  - `circuit_no` int
+  - `double_circuit_with` text
+  - `conductor` text
+  - `route_length_km` number
+  - `commissioning_year` int
+  - `status` enum existing|committed|planned req
+- **crosswalk**: xlsx → `gis_crosswalk`, required_sheet = false. Names of the same thing across systems.
+  - `entity_type` enum substation|circuit req
+  - `planning_model_id` text
+  - `gis_feature_id` text
+  - `ncc_report_name` text
+  - `scada_name` text
+  - `commercial_name` text
+  - `notes` text
+- **Delivery rules** go in the intro: GeoPackage preferred, else Shapefile with all parts including .prj, else GeoJSON in WGS 84. State the EPSG code. No landowner, affected-person, compensation or contact fields.
+
+## T03 ncc_monthly (NCC reporting; NCC metering): prefix ncc_
+- **definitions**: qa. Questions:
+  - How are "losses by voltage level" derived (metered, estimated, state estimator)? From which meters?
+  - Are 220/132 kV and 132/33 kV transformation losses included in the 132 kV figure? Station supply? 400 kV?
+  - Can NCC produce a Central-region energy balance from boundary meters?
+  - Are bulk supply point meters on the HV or LV side of the 132/33 kV transformers?
+  - Are substation loads in the report net or gross of generation embedded at 33 kV?
+  - Which months contain estimated readings?
+  - What time zone, and interval start or end, do report timestamps use?
+- **system_summary** → `ncc_system_monthly`
+  - `month` month req
+  - `generated_mwh` number
+  - `imported_mwh` number
+  - `exported_mwh` number
+  - `sent_out_mwh` number req
+  - `delivered_mwh` number req
+  - `losses_mwh` number req
+  - `peak_mw` number req
+  - `peak_at` datetime
+  - `min_mw` number
+  - `deemed_mwh` number
+  - `unserved_mwh` number
+  - `constraint_incidents` int
+  - `notes` text
+- **losses_by_voltage** → `ncc_losses_by_voltage`
+  - `month` month req
+  - `scope` enum national|central|other req
+  - `voltage_level` enum 400|220|132|transformation|total req
+  - `losses_mwh` number req
+  - `losses_pct` number
+  - `method` enum metered|estimated|state_estimator|other
+  - `meters_used` text
+- **substation_monthly** → `ncc_substation_monthly`
+  - `month` month req
+  - `substation` text req
+  - `metering_point` text
+  - `metering_kv` number
+  - `energy_mwh` number req
+  - `peak_mw` number req
+  - `peak_at` datetime
+  - `peak_mvar` number
+  - `coincident_mw` number: MW at the system-peak hour
+  - `min_mw` number
+  - `load_basis` enum net|gross|unknown
+  - `quality` enum actual|estimated|partial
+- **generation_monthly** → `ncc_generation_monthly`
+  - `month` month req
+  - `plant` text req
+  - `connection_substation` text
+  - `connection_kv` number
+  - `sent_out_mwh` number req
+  - `peak_mw` number
+  - `availability_pct` number
+  - `metered` yn
+- **boundary_meters** → `ncc_boundary_meter`. Ties crossing the Central boundary, including the 400 kV infeed at Kawanda.
+  - `month` month req
+  - `meter_id` text req
+  - `substation` text req
+  - `circuit` text req: line or transformer the meter is on
+  - `line_end` text
+  - `hv_or_lv` enum hv|lv|na
+  - `direction` enum import|export req
+  - `energy_mwh` number req
+  - `energy_mvarh` number
+  - `accuracy_class` text
+  - `estimated` yn
+- **deemed_unserved** → `ncc_deemed_unserved`
+  - `month` month req
+  - `category` enum deemed|unserved|load_shed req
+  - `plant_or_substation` text req
+  - `energy_mwh` number req
+  - `amount_ugx` number
+  - `cause` enum network_constraint|generation_shortfall|surplus|other|unknown
+  - `constraint_element` text
+- **sample_days** → `ncc_sample_day`
+  - `month` month req
+  - `peak_day` date req
+  - `offpeak_day` date req
+  - `note` text
+
+## T04 scada (NCC SCADA / historian): prefix scada_
+- **points** → `scada_point`
+  - `point_id` text req
+  - `substation` text req
+  - `bay` text req
+  - `element_type` enum line|transformer|generator|bsp|busbar|other req
+  - `element_ref` text: T01 id if known
+  - `quantity` enum P|Q|V|I req
+  - `unit` enum MW|MVAr|kV|A req
+  - `sign_convention` text
+  - `interval_minutes` int
+  - `notes` text
+- **hourly_data**: csv, file_pattern `scada_YYYY-MM.csv` → `scada_hourly`. One CSV per month.
+  - `timestamp` datetime req: interval start, EAT
+  - `point_id` text req
+  - `value` number req
+  - `unit` enum MW|MVAr|kV|A
+  - `quality` enum good|bad|estimated|substituted|missing
+- **breaker_changes** → `scada_breaker`, required_sheet = false
+  - `timestamp` datetime req
+  - `substation` text
+  - `bay` text
+  - `element_ref` text
+  - `new_state` enum open|closed req
+  - `reason` text
+
+## T05 ncc_operations (NCC operations): prefix ops_
+- **constraints** → `ops_constraint`. First row is the Kawanda constraint.
+  - `constraint_id` text req
+  - `substation` text req
+  - `element` text req
+  - `element_ref` text
+  - `element_type` enum transformer|line|busbar|other req
+  - `voltage_kv` number
+  - `limit_mva` number req
+  - `limit_basis` enum thermal|protection|ct|stability|other
+  - `binds_at` enum N-0|N-1|both
+  - `triggering_contingency` text
+  - `special_scheme` text
+  - `relief_project` text
+  - `relief_date` month
+  - `first_seen` month
+  - `notes` text
+- **constraint_hours** → `ops_constraint_hour`
+  - `constraint_id` text req
+  - `start_at` datetime req
+  - `end_at` datetime req
+  - `max_loading_pct` number
+  - `max_mw` number
+  - `action` text
+- **curtailments** → `ops_curtailment`
+  - `start_at` datetime req
+  - `end_at` datetime req
+  - `substation` text req
+  - `customer_category` enum data_centre|industrial|export|domestic_feeder|other req
+  - `customer_ref` text: anonymised code, never a name
+  - `mw_curtailed` number req
+  - `reason` enum kawanda_constraint|other_network_constraint|generation_shortfall|other req
+  - `constraint_id` text
+  - `instruction_ref` text
+- **deferred_connections** → `ops_deferred_connection`
+  - `application_date` date req
+  - `substation_or_area` text req
+  - `customer_category` enum data_centre|industrial|export|domestic_feeder|other req
+  - `customer_ref` text
+  - `requested_mw` number req
+  - `status` enum deferred|refused|pending|connected_later req
+  - `reason` text
+  - `constraint_id` text
+- **events** → `ops_event`. Incidents and outages, Sep 2025 to Sep 2026, Central and its infeeds.
+  - `start_at` datetime req
+  - `end_at` datetime
+  - `substation` text
+  - `element` text
+  - `element_ref` text
+  - `event_type` enum forced_trip|planned_outage|load_shedding|blackout|disturbance|other req
+  - `mw_lost` number
+  - `mwh_unserved` number
+  - `cause_code` enum constraint|protection|equipment|weather|vandalism|generation|human_error|unknown|other req
+  - `constraint_related` yn req
+  - `cause` text
+  - `notes` text
+
+## T06 commercial (UETCL Commercial): prefix com_
+- **tariffs** → `com_tariff`
+  - `effective_from` date req
+  - `effective_to` date
+  - `tariff_code` text req
+  - `ugx_per_kwh` number req
+  - `era_decision_ref` text
+  - `notes` text
+- **bsp_sales** → `com_bsp_sales`
+  - `month` month req
+  - `bulk_supply_point` text req
+  - `customer_type` enum uedcl|direct_customer|export|other req
+  - `customer_ref` text: anonymised
+  - `meter_id` text
+  - `energy_kwh` number req
+  - `amount_ugx` number
+  - `estimated` yn
+- **deemed_energy** → `com_deemed_energy`
+  - `month` month req
+  - `plant` text req
+  - `deemed_kwh` number req
+  - `amount_ugx` number req
+  - `cause` enum evacuation_constraint|surplus|other|unknown
+  - `constraint_location` text
+- **energy_charges** → `com_energy_charge`. Used for the lower bound of the loss value.
+  - `month` month req
+  - `plant` text req
+  - `energy_charge_ugx_per_kwh` number req
+  - `take_or_pay` yn
+  - `notes` text
+- **plants_ppa** → `com_plant`
+  - `plant` text req
+  - `owner` text
+  - `technology` enum hydro|solar|thermal|bagasse|wind|import|other req
+  - `installed_mw` number
+  - `contracted_mw` number
+  - `dependable_mw` number
+  - `connection_substation` text req
+  - `connection_kv` number req
+  - `cod` month
+  - `ppa_expiry` month
+  - `deemed_terms` text
+  - `operating_status` enum operating|standby|retired|under_construction req
+  - `confidential` yn
+
+## T07 uedcl_feeders (UEDCL, aggregate, non-blocking): prefix uedcl_
+- **feeders** → `uedcl_feeder_monthly`
+  - `month` month req
+  - `bulk_supply_point` text req
+  - `feeder` text req
+  - `kv` number
+  - `peak_mw` number
+  - `energy_mwh` number
+  - `power_factor` number
+  - `embedded_gen_mw` number
+  - `embedded_gen_plants` text
+  - `notes` text
+
+## T08 projects_and_loads (Planning projects and connections; Commercial): prefix plan_
+- **projects** → `plan_project`
+  - `project_id` text req
+  - `name` text req
+  - `type` enum line|transformer|substation|reconductoring|compensation|other req
+  - `status` enum committed|planned|under_construction req
+  - `cod` month
+  - `from_substation` text
+  - `to_substation` text
+  - `kv` number
+  - `circuits` int
+  - `length_km` number
+  - `conductor` text
+  - `mva` number
+  - `mvar` number
+  - `relief_for` text: a substation or constraint it relieves, e.g. Kawanda
+  - `source_document` text
+- **committed_loads** → `plan_committed_load`
+  - `load_ref` text req: anonymised
+  - `category` enum data_centre|industrial_park|manufacturing|sgr_traction|commercial|other req
+  - `substation` text req
+  - `mw` number req
+  - `pf` number
+  - `firm_or_interruptible` enum firm|interruptible|unknown
+  - `status` enum signed|applied|pending|connected req
+  - `expected_date` month
+  - `ilds_anchor` yn
+  - `notes` text
+- **sgr_points** → `plan_sgr_point`, required_sheet = false
+  - `point_id` text req
+  - `name` text
+  - `substation` text
+  - `mw` number
+  - `expected_date` month
+  - `notes` text
+
+## T13 planning_studies (Planning mentor): prefix plan_
+- **criteria** → `plan_criterion`
+  - `criterion` text req, e.g. `n1_rating_set`, `post_contingency_v_min_pu`, `post_contingency_v_max_pu`, `normal_v_min_pu`, `normal_v_max_pu`
+  - `value` text req
+  - `unit` text
+  - `source` text req: Grid Code clause or planning manual
+  - `notes` text
+- **contingency_results** → `plan_contingency_result`
+  - `study_id` text req
+  - `case_id` text
+  - `contingency` text req
+  - `contingency_ref` text
+  - `violation_type` enum overload|undervoltage|overvoltage|non_convergence|loss_of_supply req
+  - `element` text
+  - `element_ref` text
+  - `value` number
+  - `limit` number
+  - `rating_basis` text
+  - `remark` text
+- **unit_costs** → `plan_unit_cost`
+  - `item` text req, e.g. `reconductor_acsr_to_accc_per_km`, `line_132kv_per_km`, `bay_132kv`, `transformer_per_mva`, `capacitor_per_mvar`
+  - `kv` number
+  - `conductor` text
+  - `unit` text req
+  - `cost` number req
+  - `currency` enum UGX|USD req
+  - `price_year` int req
+  - `source` text
+
+## T09 sites (UIA, then the team): prefix site_
+- **sites** → `site_candidate`
+  - `site_id` text req
+  - `name` text req
+  - `district` text
+  - `kind` enum uia_park|free_zone|gazetted_land|private_estate|other req
+  - `status` enum gazetted|serviced|planned|proposed req
+  - `owner` text
+  - `area_ha` number
+  - `available_ha` number
+  - `lat` number
+  - `lon` number
+  - `allocated_load_mw` number
+  - `planned_supply_point` text
+  - `land_confirmed` yn
+  - `notes` text
+- **site_boundaries**: vector, MultiPolygon → `site_boundary`, required_sheet = false
+  - `site_id` text req
+  - `name` text
+  - `status` text
+- **metric_overrides** → `site_metric_override`, required_sheet = false
+  - `site_id` text req
+  - `metric` text req
+  - `value` number req
+  - `unit` text
+  - `source` text req
+  - `notes` text
+
+## T10 growth (the team): prefix team_
+- **growth_rates** → `team_growth_rate`
+  - `scope` enum central|substation|national req
+  - `substation` text
+  - `year_from` int req
+  - `year_to` int req
+  - `rate_pct_per_yr` number req
+  - `scenario` enum low|base|high req
+  - `source` text req
+  - `notes` text
+
+## T11 recon_explanations (the team, reviewed by the NCC mentor): prefix team_
+- **explanations** → `team_recon_explanation`
+  - `month` month req
+  - `basis` enum national|central_boundary|ncc_central req
+  - `cause_code` enum data_gap|meter_error|outage_topology|boundary_flow_unknown|metering_perimeter|station_service|model_parameter|event|other req
+  - `explanation` text req
+  - `quantified_mwh` number
+  - `evidence_ref` text
+  - `author` text req
+  - `reviewed_by` text
+  - `review_date` date

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Constraints (N-1) | UETCL Grid Atlas</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/atlas.css">
+  <script src="vendor/chartjs/chart.umd.js" defer></script>
+  <script type="module" src="js/common.js"></script>
+</head>
+<body data-page="n1">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div id="atlas-banner" class="atlas-banner atlas-banner--unknown" role="alert">
+    <strong>CHECKING DATA PROVENANCE</strong>
+    <span>Until this bar changes, treat every figure as SYNTHETIC: NOT UETCL DATA.</span>
+  </div>
+  <noscript><p class="atlas-error"><strong>JavaScript is off.</strong> The Atlas needs it to show data and the provenance banner.</p></noscript>
+  <header class="atlas-header">
+    <a class="atlas-brand" href="index.html"><img src="favicon.svg" alt="" width="26" height="26">UETCL Grid Atlas <small>Central region</small></a>
+    <nav class="atlas-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html">Map</a></li>
+        <li><a href="losses.html">Losses</a></li>
+        <li><a href="n1.html" aria-current="page">Constraints (N-1)</a></li>
+        <li><a href="kawanda.html">Kawanda</a></li>
+        <li><a href="sites.html">Sites</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="imports.html">Imports</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main id="main" class="atlas-main">
+    <h1>Constraints (N-1)</h1>
+    <p class="atlas-lede">What happens when one circuit or transformer trips: issues with everything in service (N-0), the contingency results, and the comparison with Planning's own studies.</p>
+    <section class="atlas-section" data-module="js/sections/n1-summary.js" data-title="Contingency summary"></section>
+    <section class="atlas-section" data-module="js/sections/n1-n0-issues.js" data-title="Issues with everything in service (N-0)"></section>
+    <section class="atlas-section" data-module="js/sections/n1-table.js" data-title="Contingency results"></section>
+    <section class="atlas-section" data-module="js/sections/n1-benchmark.js" data-title="Comparison with Planning studies"></section>
+  </main>
+  <footer id="atlas-footer" class="atlas-footer">
+    <span>UETCL Grid Atlas (MVP)</span>
+    <span>Run <strong data-run-id>&ndash;</strong></span>
+  </footer>
+</body>
+</html>

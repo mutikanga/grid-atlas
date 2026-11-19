@@ -1,0 +1,207 @@
+# Grid Atlas: four containers (db, worker, api, web).
+#
+# Read this first:
+#   - Use ./atlas, not docker compose directly (./atlas help lists the commands).
+#   - Settings come from .env (./atlas init creates it from .env.example).
+#   - db, worker and api sit ONLY on the "core" network, which is internal: they have
+#     no route out of the machine, so nothing here can reach the SCADA network.
+#   - Only web (Nginx) publishes a port, bound to ATLAS_BIND_IP. The database is never
+#     published: Grid Monitor already uses loopback 5432 and 6379, and 8000/8100.
+#   - Database files live in ./data/pgdata (a bind mount, not a named volume), so
+#     "docker compose down -v" cannot delete them. Never run "down -v" anyway.
+#   - Every service has a memory limit, oom_score_adj 500 and low CPU shares, so on a
+#     shared VM the kernel stops the Atlas before Grid Monitor.
+
+name: gridatlas
+
+x-logging: &logging
+  driver: json-file
+  options: {max-size: 10m, max-file: "3"}
+
+# Settings shared by the worker and the api (one Python image, code mounted read-only).
+x-pyenv: &pyenv
+  TZ: Africa/Kampala
+  PYTHONPATH: /app
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONUNBUFFERED: "1"
+  OMP_NUM_THREADS: "1"            # BLAS single-threaded: leave CPU for Grid Monitor
+  OPENBLAS_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  HOME: /tmp                      # the root filesystem is read-only
+  XDG_CACHE_HOME: /tmp/.cache
+  MPLCONFIGDIR: /tmp/.matplotlib
+  ATLAS_ENV: ${ATLAS_ENV:-dev}
+
+x-py: &py
+  image: gridatlas-py:${ATLAS_VERSION:-dev}
+  build: {context: ., dockerfile: docker/py.Dockerfile}
+  user: "10001:10001"
+  init: true                      # reaps child processes, forwards signals
+  read_only: true
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: [ALL]
+  networks: [core]
+  depends_on:
+    db: {condition: service_healthy}
+  restart: unless-stopped
+  logging: *logging
+  oom_score_adj: 500              # the kernel kills Atlas before Grid Monitor
+  cpu_shares: 512                 # half the default weight: Grid Monitor wins contention
+
+services:
+  db:
+    image: gridatlas-db:${ATLAS_VERSION:-dev}
+    build: ./db
+    environment:
+      TZ: Africa/Kampala
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run ./atlas init to create .env}
+      ATLAS_RW_PASSWORD: ${ATLAS_RW_PASSWORD:?run ./atlas init to create .env}
+      ATLAS_RO_PASSWORD: ${ATLAS_RO_PASSWORD:?run ./atlas init to create .env}
+    command:
+      - postgres
+      - -c
+      - shared_buffers=128MB
+      - -c
+      - effective_cache_size=512MB
+      - -c
+      - work_mem=8MB
+      - -c
+      - maintenance_work_mem=64MB
+      - -c
+      - max_connections=40
+      - -c
+      - timezone=Africa/Kampala
+    volumes:
+      - ./data/pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro    # first boot only: roles and databases
+    networks: [core]                                # never published
+    shm_size: 128m
+    security_opt: ["no-new-privileges:true"]
+    # -h 127.0.0.1: the first-boot temporary server listens on the socket only, so this
+    # stays unhealthy until init has finished and the real server is up.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d gridatlas"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    mem_limit: ${DB_MEM:-768m}
+    memswap_limit: ${DB_MEM:-768m}
+    cpus: ${DB_CPUS:-1.0}
+    cpu_shares: 512
+    oom_score_adj: 500
+    restart: unless-stopped
+    logging: *logging
+
+  worker:
+    <<: *py
+    # Waits for the database, migrates, optionally bootstraps, writes
+    # /tmp/atlas-worker-ready, then idles. Jobs run with ./atlas run (docker compose exec).
+    command: [python, -m, engine.cli, worker]
+    environment:
+      <<: *pyenv
+      DATABASE_URL: postgresql+psycopg://atlas_rw:${ATLAS_RW_PASSWORD:?run ./atlas init}@db/gridatlas
+      BOOTSTRAP: ${BOOTSTRAP:-none}
+      ALLOW_SYNTHETIC: ${ALLOW_SYNTHETIC:-0}
+    volumes:
+      - ./engine:/app/engine:ro
+      - ./loaders:/app/loaders:ro
+      - ./api:/app/api:ro
+      - ./config:/app/config:ro
+      - ./templates:/app/templates:ro
+      - ./db/migrations:/app/db/migrations:ro
+      - ./tests:/app/tests:ro
+      - ./docs/methods:/app/docs/methods:ro
+      - ./data:/app/data                            # the worker alone may write data/
+    tmpfs: ["/tmp:size=512m,mode=1777"]
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/atlas-worker-ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 900s                            # a first synthetic bootstrap takes minutes
+    mem_limit: ${WORKER_MEM:-1536m}
+    memswap_limit: ${WORKER_MEM:-1536m}
+    cpus: ${WORKER_CPUS:-1.5}
+
+  api:
+    <<: *py
+    # The API only talks to nginx over the internal core network, so trusting
+    # forwarded headers from any address there is safe.
+    command: [uvicorn, "api.main:app", --host, 0.0.0.0, --port, "8000", --workers, "1",
+              --proxy-headers, --forwarded-allow-ips, "*"]
+    environment:
+      <<: *pyenv
+      DATABASE_URL: postgresql+psycopg://atlas_ro:${ATLAS_RO_PASSWORD:?run ./atlas init}@db/gridatlas
+    volumes:                                        # code only: the API never reads data/
+      - ./engine:/app/engine:ro
+      - ./loaders:/app/loaders:ro
+      - ./api:/app/api:ro
+      - ./config:/app/config:ro
+      - ./templates:/app/templates:ro
+      - ./db/migrations:/app/db/migrations:ro
+      - ./tests:/app/tests:ro
+      - ./docs/methods:/app/docs/methods:ro
+    tmpfs: ["/tmp:size=64m,mode=1777"]
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    mem_limit: ${API_MEM:-512m}
+    memswap_limit: ${API_MEM:-512m}
+    cpus: ${API_CPUS:-1.0}
+
+  web:
+    image: nginx:1.28.0-alpine
+    environment:
+      NGINX_ENVSUBST_FILTER: "^ATLAS_"              # substitute only our variables
+      ATLAS_ALLOW_CIDR: ${ATLAS_ALLOW_CIDR:-0.0.0.0/0}
+      ATLAS_AUTH_FILE: ${ATLAS_AUTH_FILE:-}
+    volumes:
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ./web:/usr/share/nginx/html:ro
+      - ./data/basemap:/usr/share/nginx/basemap:ro
+      - ./docs/methods:/usr/share/nginx/methods:ro
+      - ./data/auth:/etc/nginx/auth:ro              # optional htpasswd (see .env.example)
+    # The image renders the template into conf.d at start, so conf.d is a tmpfs and
+    # the rest of the filesystem stays read-only.
+    read_only: true
+    tmpfs: ["/etc/nginx/conf.d", "/var/cache/nginx", "/var/run", "/tmp"]
+    security_opt: ["no-new-privileges:true"]
+    ports:
+      - "${ATLAS_BIND_IP:-127.0.0.1}:${ATLAS_HTTP_PORT:-8090}:80"   # the ONLY published port
+    networks: [edge, core]
+    depends_on:
+      api: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    mem_limit: ${WEB_MEM:-64m}
+    memswap_limit: ${WEB_MEM:-64m}
+    cpus: ${WEB_CPUS:-0.25}
+    cpu_shares: 512
+    oom_score_adj: 500
+    restart: unless-stopped
+    logging: *logging
+
+networks:
+  # No gateway out: db, worker and api cannot open a connection to anything
+  # outside this network (no default route).
+  core:
+    internal: true
+    ipam:
+      config: [{subnet: "${ATLAS_CORE_SUBNET:-172.30.90.0/28}"}]
+  # Nginx's side: answers browsers on the published port. Masquerade is off, so it
+  # cannot NAT out to other networks either (scripts/firewall.sh adds DROP rules).
+  edge:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+    ipam:
+      config: [{subnet: "${ATLAS_EDGE_SUBNET:-172.30.90.16/28}"}]

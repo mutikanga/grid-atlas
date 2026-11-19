@@ -1,0 +1,320 @@
+id = "T01"
+slug = "network_model"
+title = "HV network model: solved cases"
+holder = "UETCL Grid Development and Planning"
+requests = [2]
+dataset = "network_model"
+criticality = "critical"
+period = "As-operated peak nearest September 2026; a light-load case; the 2030 planning case"
+intro = """
+WHAT THIS IS FOR
+The Grid Atlas computes line-by-line losses, N-1 contingencies and spare capacity for the Central region with pandapower, an open-source load-flow tool. It needs the network exactly as Planning models it, so its results can be checked against your own studies.
+
+WHAT TO SEND, IN ORDER OF PREFERENCE
+1. Your native case files for the WHOLE national network at all voltage levels: 400, 220 and 132 kV, and the 33 kV busbars at grid substations.
+   - PSS/E: the .raw saved as version 33 or 35 (the .sav as well if convenient). Tell us the PSS/E version.
+   - PowerFactory: a CGMES export if your licence allows it. Otherwise tell us, and we will run the export with you at your workstation.
+2. For each case, your own solved results: bus voltage and angle, and branch MW and MVAr. We accept our converted model only once it reproduces your solution (within 0.005 pu on voltages and 1-2 % on branch flows).
+3. If native files are hard to share, fill in the sheets of this workbook instead. They are the minimum we need.
+
+CASES WANTED
+- As-operated peak nearest September 2026.
+- A light-load (minimum demand) case.
+- The 2030 Grid Development Plan case, with Planning's load forecast per bulk supply point.
+
+RATINGS
+Tell us what each rating set means: continuous, emergency, and NCC's operating limit where protection or CTs make it lower. Include the ambient and conductor temperatures they assume.
+
+HANDLING
+This is critical-infrastructure information. Deliver it only by the route in the handling note: the UETCL share or the server's landing folder. Do not include any personal data.
+"""
+
+[[sheets]]
+name = "cases"
+table = "net_case"
+title = "Cases in this workbook"
+grain = "one row per load-flow case"
+key = ["case_id"]
+columns = [
+  { name = "case_id", type = "text", required = true, desc = "Short identifier for the case, used in every other sheet", example = "EXAMPLE-PEAK" },
+  { name = "case_type", type = "enum", enum = ["as_operated_peak", "light_load", "planning_2030", "other"], required = true, desc = "What the case represents", example = "as_operated_peak" },
+  { name = "case_date", type = "date", required = true, desc = "Date the case represents", example = "2026-09-15" },
+  { name = "case_hour", type = "int", min = 0, max = 23, desc = "Hour the case represents (EAT, 0-23)", example = 20 },
+  { name = "description", type = "text", desc = "Anything we should know about the case", example = "Example: evening peak, all units available" },
+  { name = "source_tool", type = "enum", enum = ["PSSE", "PowerFactory", "Excel", "handbuilt", "synthetic", "other"], required = true, desc = "Tool the case comes from", example = "PSSE" },
+  { name = "tool_version", type = "text", desc = "Tool version", example = "35.4" },
+  { name = "base_mva", type = "number", unit = "MVA", required = true, min = 1, desc = "System base for per-unit values", example = 100 },
+  { name = "frequency_hz", type = "number", unit = "Hz", desc = "System frequency", example = 50 },
+  { name = "perimeter", type = "enum", enum = ["national", "central", "other"], required = true, desc = "Whole national network, or only part of it", example = "national" },
+  { name = "rating_note", type = "text", desc = "What the rating sets mean; ambient and conductor temperature", example = "rate_cont at 30 C ambient, 75 C conductor" },
+  { name = "contact", type = "text", desc = "Who to ask about this case", example = "[name, extension]" },
+]
+
+[[sheets]]
+name = "buses"
+table = "net_bus"
+title = "Buses"
+grain = "one row per bus per case"
+key = ["case_id", "bus_id"]
+columns = [
+  { name = "case_id", type = "text", required = true, desc = "Case from the cases sheet", example = "EXAMPLE-PEAK" },
+  { name = "bus_id", type = "text", required = true, desc = "Your bus identifier (number or name)", example = "1301" },
+  { name = "name", type = "text", required = true, desc = "Bus name", example = "EXA 132 kV bus 1" },
+  { name = "substation", type = "text", required = true, desc = "Substation name as you use it; we map names to codes", example = "Example A" },
+  { name = "vn_kv", type = "number", unit = "kV", required = true, min = 0.4, max = 500, desc = "Nominal voltage", example = 132 },
+  { name = "zone", type = "text", desc = "Area or zone in your model", example = "Central" },
+  { name = "in_service", type = "yn", required = true, desc = "In service in this case", example = "Y" },
+  { name = "v_min_pu", type = "number", unit = "pu", min = 0.5, max = 1.2, desc = "Normal operating voltage, lower limit", example = 0.95 },
+  { name = "v_max_pu", type = "number", unit = "pu", min = 0.8, max = 1.5, desc = "Normal operating voltage, upper limit", example = 1.05 },
+]
+
+[[sheets]]
+name = "lines"
+table = "net_line"
+title = "Lines and cables, one row per circuit"
+grain = "one row per circuit per case"
+key = ["case_id", "line_id"]
+notes = "A double-circuit line is two rows. Circuits on the same towers share a tower_group."
+columns = [
+  { name = "case_id", type = "text", required = true, desc = "Case from the cases sheet", example = "EXAMPLE-PEAK" },
+  { name = "line_id", type = "text", required = true, desc = "Your branch identifier", example = "1301-1402-1" },
+  { name = "name", type = "text", desc = "Line name", example = "Example A - Example B circuit 1" },
+  { name = "from_bus", type = "text", required = true, desc = "From bus_id", example = "1301" },
+  { name = "to_bus", type = "text", required = true, desc = "To bus_id", example = "1402" },
+  { name = "circuit", type = "int", required = true, min = 1, max = 9, desc = "Circuit number", example = 1 },
+  { name = "length_km", type = "number", unit = "km", required = true, min = 0, warn_max = 400, desc = "Route length", example = 16.4 },
+  { name = "conductor", type = "text", desc = "Conductor type and size", example = "ACSR Bear" },
+  { name = "conductors_per_phase", type = "int", min = 1, max = 4, desc = "Sub-conductors per phase", example = 1 },
+  { name = "r_ohm_per_km", type = "number", unit = "ohm/km", required = true, min = 0, warn_max = 1, desc = "Positive-sequence resistance per km", example = 0.136 },
+  { name = "x_ohm_per_km", type = "number", unit = "ohm/km", required = true, min = 0, warn_max = 1, desc = "Positive-sequence reactance per km", example = 0.401 },
+  { name = "b_us_per_km", type = "number", unit = "uS/km", min = 0, warn_max = 10, desc = "Positive-sequence susceptance per km", example = 2.85 },
+  { name = "r_temp_c", type = "number", unit = "C", min = 0, max = 120, desc = "Conductor temperature the resistance is quoted at", example = 20 },
+  { name = "rate_cont_mva", type = "number", unit = "MVA", required = true, min = 0, desc = "Continuous rating", example = 137 },
+  { name = "rate_emerg_mva", type = "number", unit = "MVA", min = 0, desc = "Emergency (short-time) rating", example = 160 },
+  { name = "rate_ncc_mva", type = "number", unit = "MVA", min = 0, desc = "NCC operating limit, if lower than the continuous rating", example = "" },
+  { name = "rate_ncc_basis", type = "enum", enum = ["thermal", "protection", "ct", "stability", "other"], desc = "What sets the NCC limit", example = "" },
+  { name = "commissioning_year", type = "int", min = 1950, max = 2040, desc = "Year first energised", example = 2003 },
+  { name = "status", type = "enum", enum = ["existing", "committed", "planned", "retired"], required = true, desc = "Status", example = "existing" },
+  { name = "in_service", type = "yn", required = true, desc = "In service in this case", example = "Y" },
+  { name = "tower_group", type = "text", desc = "Same value for circuits on the same towers", example = "EXA-EXB-132" },
+  { name = "notes", type = "text", desc = "Anything else", example = "" },
+]
+
+[[sheets]]
+name = "transformers"
+table = "net_trafo"
+title = "Two-winding transformers"
+grain = "one row per transformer per case"
+key = ["case_id", "trafo_id"]
+columns = [
+  { name = "case_id", type = "text", required = true, desc = "Case from the cases sheet", example = "EXAMPLE-PEAK" },
+  { name = "trafo_id", type = "text", required = true, desc = "Your transformer identifier", example = "EXA-T1" },
+  { name = "name", type = "text", desc = "Transformer name", example = "Example A transformer 1" },
+  { name = "substation", type = "text", required = true, desc = "Substation name as you use it", example = "Example A" },
+  { name = "hv_bus", type = "text", required = true, desc = "High-voltage bus_id", example = "2201" },
+  { name = "lv_bus", type = "text", required = true, desc = "Low-voltage bus_id", example = "1301" },
+  { name = "sn_mva", type = "number", unit = "MVA", required = true, min = 0, desc = "Rated power", example = 150 },
+  { name = "vn_hv_kv", type = "number", unit = "kV", required = true, min = 0, desc = "Rated HV voltage", example = 220 },
+  { name = "vn_lv_kv", type = "number", unit = "kV", required = true, min = 0, desc = "Rated LV voltage", example = 132 },
+  { name = "vk_percent", type = "number", unit = "%", required = true, min = 0, warn_max = 30, desc = "Short-circuit voltage", example = 12.5 },
+  { name = "vkr_percent", type = "number", unit = "%", min = 0, warn_max = 3, desc = "Resistive part of the short-circuit voltage (or give load_loss_kw)", example = 0.3 },
+  { name = "load_loss_kw", type = "number", unit = "kW", min = 0, desc = "Load (copper) losses at rated power, if vkr_percent is not known", example = "" },
+  { name = "pfe_kw", type = "number", unit = "kW", min = 0, desc = "No-load (iron) losses", example = 85 },
+  { name = "i0_percent", type = "number", unit = "%", min = 0, warn_max = 5, desc = "No-load current", example = 0.05 },
+  { name = "vector_group", type = "text", desc = "Vector group", example = "YNyn0" },
+  { name = "tap_side", type = "enum", enum = ["hv", "lv"], desc = "Side with the tap changer", example = "hv" },
+  { name = "tap_neutral", type = "int", desc = "Neutral tap position", example = 0 },
+  { name = "tap_min", type = "int", desc = "Lowest tap position", example = -10 },
+  { name = "tap_max", type = "int", desc = "Highest tap position", example = 10 },
+  { name = "tap_step_percent", type = "number", unit = "%", min = 0, warn_max = 5, desc = "Voltage change per tap step", example = 1.25 },
+  { name = "tap_pos", type = "int", desc = "Tap position in this case", example = 0 },
+  { name = "rate_cont_mva", type = "number", unit = "MVA", required = true, min = 0, desc = "Continuous rating", example = 150 },
+  { name = "rate_emerg_mva", type = "number", unit = "MVA", min = 0, desc = "Emergency (short-time) rating", example = 165 },
+  { name = "rate_ncc_mva", type = "number", unit = "MVA", min = 0, desc = "NCC operating limit, if lower", example = "" },
+  { name = "rate_ncc_basis", type = "enum", enum = ["thermal", "protection", "ct", "stability", "other"], desc = "What sets the NCC limit", example = "" },
+  { name = "commissioning_year", type = "int", min = 1950, max = 2040, desc = "Year first energised", example = 2012 },
+  { name = "status", type = "enum", enum = ["existing", "committed", "planned", "retired"], required = true, desc = "Status", example = "existing" },
+  { name = "in_service", type = "yn", required = true, desc = "In service in this case", example = "Y" },
+  { name = "notes", type = "text", desc = "Anything else", example = "" },
+]
+
+[[sheets]]
+name = "transformers_3w"
+table = "net_trafo3w"
+title = "Three-winding transformers"
+grain = "one row per transformer per case"
+key = ["case_id", "trafo_id"]
+required_sheet = false
+notes = "vk_hv_percent is HV-MV, vk_mv_percent is MV-LV and vk_lv_percent is LV-HV, each on the smaller of the two windings' ratings."
+columns = [
+  { name = "case_id", type = "text", required = true, desc = "Case from the cases sheet", example = "EXAMPLE-PEAK" },
+  { name = "trafo_id", type = "text", required = true, desc = "Your transformer identifier", example = "EXA-T3" },
+  { name = "name", type = "text", desc = "Transformer name", example = "Example A transformer 3" },
+  { name = "substation", type = "text", required = true, desc = "Substation name as you use it", example = "Example A" },
+  { name = "hv_bus", type = "text", required = true, desc = "HV bus_id", example = "2201" },
+  { name = "mv_bus", type = "text", required = true, desc = "MV bus_id", example = "1301" },
+  { name = "lv_bus", type = "text", required = true, desc = "LV bus_id", example = "3301" },
+  { name = "sn_hv_mva", type = "number", unit = "MVA", required = true, min = 0, desc = "HV winding rating", example = 150 },
+  { name = "sn_mv_mva", type = "number", unit = "MVA", required = true, min = 0, desc = "MV winding rating", example = 150 },
+  { name = "sn_lv_mva", type = "number", unit = "MVA", required = true, min = 0, desc = "LV winding rating", example = 50 },
+  { name = "vn_hv_kv", type = "number", unit = "kV", required = true, desc = "Rated HV voltage", example = 220 },
+  { name = "vn_mv_kv", type = "number", unit = "kV", required = true, desc = "Rated MV voltage", example = 132 },
+  { name = "vn_lv_kv", type = "number", unit = "kV", required = true, desc = "Rated LV voltage", example = 33 },
+  { name = "vk_hv_percent", type = "number", unit = "%", required = true, min = 0, desc = "Short-circuit voltage HV-MV", example = 12.0 },
+  { name = "vk_mv_percent", type = "number", unit = "%", required = true, min = 0, desc = "Short-circuit voltage MV-LV", example = 8.0 },
+  { name = "vk_lv_percent", type = "number", unit = "%", required = true, min = 0, desc = "Short-circuit voltage LV-HV", example = 18.0 },
+  { name = "vkr_hv_percent", type = "number", unit = "%", min = 0, desc = "Resistive part HV-MV", example = 0.3 },
+  { name = "vkr_mv_percent", type = "number", unit = "%", min = 0, desc = "Resistive part MV-LV", example = 0.3 },
+  { name = "vkr_lv_percent", type = "number", unit = "%", min = 0, desc = "Resistive part LV-HV", example = 0.3 },
+  { name = "pfe_kw", type = "number", unit = "kW", min = 0, desc = "No-load (iron) losses", example = 90 },
+  { name = "i0_percent", type = "number", unit = "%", min = 0, desc = "No-load current", example = 0.05 },
+  { name = "tap_side", type = "enum", enum = ["hv", "mv", "lv"], desc = "Winding with the tap changer", example = "hv" },
+  { name = "tap_neutral", type = "int", desc = "Neutral tap position", example = 0 },
+  { name = "tap_min", type = "int", desc = "Lowest tap position", example = -10 },
+  { name = "tap_max", type = "int", desc = "Highest tap position", example = 10 },
+  { name = "tap_step_percent", type = "number", unit = "%", min = 0, desc = "Voltage change per tap step", example = 1.25 },
+  { name = "tap_pos", type = "int", desc = "Tap position in this case", example = 0 },
+  { name = "rate_cont_mva", type = "number", unit = "MVA", required = true, min = 0, desc = "Continuous rating (HV winding)", example = 150 },
+  { name = "commissioning_year", type = "int", min = 1950, max = 2040, desc = "Year first energised", example = 2015 },
+  { name = "status", type = "enum", enum = ["existing", "committed", "planned", "retired"], required = true, desc = "Status", example = "existing" },
+  { name = "in_service", type = "yn", required = true, desc = "In service in this case", example = "Y" },
+]
+
+[[sheets]]
+name = "generators"
+table = "net_gen"
+title = "Generators and infeeds"
+grain = "one row per generating unit (or plant equivalent) per case"
+key = ["case_id", "gen_id"]
+columns = [
+  { name = "case_id", type = "text", required = true, desc = "Case from the cases sheet", example = "EXAMPLE-PEAK" },
+  { name = "gen_id", type = "text", required = true, desc = "Your generator identifier", example = "EXA-G1" },
+  { name = "name", type = "text", desc = "Unit name", example = "Example Hydro unit 1" },
+  { name = "bus", type = "text", required = true, desc = "Connection bus_id", example = "1101" },
+  { name = "plant", type = "text", required = true, desc = "Plant name", example = "Example Hydro" },
+  { name = "technology", type = "enum", enum = ["hydro", "solar", "thermal", "bagasse", "wind", "import", "other"], required = true, desc = "Technology", example = "hydro" },
+  { name = "p_mw", type = "number", unit = "MW", required = true, desc = "Dispatch in this case", example = 40 },
+  { name = "p_max_mw", type = "number", unit = "MW", required = true, min = 0, desc = "Maximum output", example = 50 },
+  { name = "p_min_mw", type = "number", unit = "MW", min = 0, desc = "Minimum stable output", example = 10 },
+  { name = "q_min_mvar", type = "number", unit = "MVAr", desc = "Reactive limit, absorbing", example = -20 },
+  { name = "q_max_mvar", type = "number", unit = "MVAr", desc = "Reactive limit, supplying", example = 30 },
+  { name = "vm_pu", type = "number", unit = "pu", min = 0.8, max = 1.2, desc = "Voltage set-point", example = 1.01 },
+  { name = "control", type = "enum", enum = ["PV", "PQ", "slack"], required = true, desc = "Control mode in this case", example = "PV" },
+  { name = "connection_kv", type = "number", unit = "kV", desc = "Voltage at the connection point", example = 132 },
+  { name = "in_service", type = "yn", required = true, desc = "In service in this case", example = "Y" },
+]
+
+[[sheets]]
+name = "loads"
+table = "net_load"
+title = "Loads (bulk supply points)"
+grain = "one row per load per case"
+key = ["case_id", "load_id"]
+columns = [
+  { name = "case_id", type = "text", required = true, desc = "Case from the cases sheet", example = "EXAMPLE-PEAK" },
+  { name = "load_id", type = "text", required = true, desc = "Your load identifier", example = "EXA-L1" },
+  { name = "bus", type = "text", required = true, desc = "Connection bus_id", example = "3301" },
+  { name = "substation", type = "text", required = true, desc = "Substation name as you use it", example = "Example A" },
+  { name = "bsp_name", type = "text", desc = "Bulk supply point name as NCC and Commercial report it", example = "Example A 33 kV" },
+  { name = "share", type = "number", min = 0, max = 1, desc = "Share of the substation's demand served here; blank splits it equally", example = 1 },
+  { name = "p_mw", type = "number", unit = "MW", required = true, desc = "Active power in this case", example = 41.2 },
+  { name = "q_mvar", type = "number", unit = "MVAr", required = true, desc = "Reactive power in this case", example = 13.5 },
+  { name = "in_service", type = "yn", required = true, desc = "In service in this case", example = "Y" },
+]
+
+[[sheets]]
+name = "shunts"
+table = "net_shunt"
+title = "Shunt capacitors and reactors"
+grain = "one row per shunt per case"
+key = ["case_id", "shunt_id"]
+required_sheet = false
+columns = [
+  { name = "case_id", type = "text", required = true, desc = "Case from the cases sheet", example = "EXAMPLE-PEAK" },
+  { name = "shunt_id", type = "text", required = true, desc = "Your shunt identifier", example = "EXA-C1" },
+  { name = "bus", type = "text", required = true, desc = "Connection bus_id", example = "3301" },
+  { name = "q_mvar", type = "number", unit = "MVAr", required = true, desc = "At 1.0 pu: positive for a reactor (absorbs), negative for a capacitor (supplies)", example = -10 },
+  { name = "steps", type = "int", min = 1, desc = "Number of steps", example = 2 },
+  { name = "in_service", type = "yn", required = true, desc = "In service in this case", example = "Y" },
+]
+
+[[sheets]]
+name = "switches"
+table = "net_switch"
+title = "Switches and normally-open points"
+grain = "one row per switch per case"
+key = ["case_id", "switch_id"]
+required_sheet = false
+columns = [
+  { name = "case_id", type = "text", required = true, desc = "Case from the cases sheet", example = "EXAMPLE-PEAK" },
+  { name = "switch_id", type = "text", required = true, desc = "Your switch identifier", example = "EXA-S1" },
+  { name = "bus", type = "text", required = true, desc = "Bus the switch is on", example = "1301" },
+  { name = "element_type", type = "enum", enum = ["line", "trafo", "bus"], required = true, desc = "What the switch connects to", example = "line" },
+  { name = "element_id", type = "text", required = true, desc = "line_id, trafo_id or bus_id", example = "1301-1402-1" },
+  { name = "closed", type = "yn", required = true, desc = "Closed in this case", example = "Y" },
+  { name = "normally_open", type = "yn", desc = "A normally-open point", example = "N" },
+]
+
+[[sheets]]
+name = "boundary"
+table = "net_boundary"
+title = "Boundary treatment (only for a partial network)"
+grain = "one row per boundary bus per case"
+key = ["case_id", "bus"]
+required_sheet = false
+notes = "Only needed if the case is not the whole national network."
+columns = [
+  { name = "case_id", type = "text", required = true, desc = "Case from the cases sheet", example = "EXAMPLE-PEAK" },
+  { name = "bus", type = "text", required = true, desc = "Boundary bus_id", example = "2201" },
+  { name = "kind", type = "enum", enum = ["slack", "pv", "fixed_p"], required = true, desc = "How the outside network is represented", example = "slack" },
+  { name = "vm_pu", type = "number", unit = "pu", min = 0.8, max = 1.2, desc = "Voltage set-point", example = 1.02 },
+  { name = "p_mw", type = "number", unit = "MW", desc = "Fixed exchange (positive = into this network)", example = "" },
+  { name = "note", type = "text", desc = "What the boundary stands for", example = "Example: infeed from the north" },
+]
+
+[[sheets]]
+name = "solved_buses"
+table = "net_solved_bus"
+title = "Your solved bus results"
+grain = "one row per bus per case"
+key = ["case_id", "bus_id"]
+required_sheet = false
+notes = "Your tool's own solution for the same case. We use it to prove the conversion."
+columns = [
+  { name = "case_id", type = "text", required = true, desc = "Case from the cases sheet", example = "EXAMPLE-PEAK" },
+  { name = "bus_id", type = "text", required = true, desc = "bus_id", example = "1301" },
+  { name = "vm_pu", type = "number", unit = "pu", required = true, min = 0, max = 2, desc = "Voltage magnitude", example = 1.012 },
+  { name = "va_deg", type = "number", unit = "deg", required = true, desc = "Voltage angle", example = -12.4 },
+]
+
+[[sheets]]
+name = "solved_branches"
+table = "net_solved_branch"
+title = "Your solved branch results"
+grain = "one row per line or transformer per case"
+key = ["case_id", "branch_id"]
+required_sheet = false
+columns = [
+  { name = "case_id", type = "text", required = true, desc = "Case from the cases sheet", example = "EXAMPLE-PEAK" },
+  { name = "branch_id", type = "text", required = true, desc = "line_id or trafo_id", example = "1301-1402-1" },
+  { name = "p_from_mw", type = "number", unit = "MW", required = true, desc = "Active power at the from end, into the branch", example = 61.3 },
+  { name = "q_from_mvar", type = "number", unit = "MVAr", desc = "Reactive power at the from end", example = 12.1 },
+  { name = "p_to_mw", type = "number", unit = "MW", desc = "Active power at the to end, into the branch", example = -60.9 },
+  { name = "q_to_mvar", type = "number", unit = "MVAr", desc = "Reactive power at the to end", example = -13.0 },
+  { name = "loading_pct", type = "number", unit = "%", min = 0, desc = "Loading against the rating your tool uses", example = 45.2 },
+]
+
+[[sheets]]
+name = "changes"
+table = "net_change"
+title = "Network changes since September 2025"
+grain = "one row per change"
+key = ["element_id", "change_date"]
+required_sheet = false
+columns = [
+  { name = "change_date", type = "date", required = true, desc = "Date of the change", example = "2026-02-10" },
+  { name = "element_id", type = "text", required = true, desc = "line_id, trafo_id, gen_id or bus_id", example = "EXA-T2" },
+  { name = "element_type", type = "enum", enum = ["line", "trafo", "gen", "shunt", "bus", "other"], required = true, desc = "Element type", example = "trafo" },
+  { name = "change", type = "enum", enum = ["commissioned", "retired", "uprated", "reconductored", "other"], required = true, desc = "What changed", example = "commissioned" },
+  { name = "detail", type = "text", desc = "Detail", example = "Example: second 220/132 kV unit" },
+]

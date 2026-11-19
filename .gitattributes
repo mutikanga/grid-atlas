@@ -1,0 +1,24 @@
+# LF line endings for every text file, so shell scripts and SQL run on the Ubuntu server.
+* text=auto eol=lf
+atlas text eol=lf
+*.sh text eol=lf
+
+# Binary: never diffed or converted
+*.xlsx binary
+*.xlsm binary
+*.xls binary
+*.docx binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.gpkg binary
+*.tif binary
+*.gz binary
+*.zip binary

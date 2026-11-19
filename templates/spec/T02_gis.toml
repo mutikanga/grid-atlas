@@ -1,0 +1,134 @@
+id = "T02"
+slug = "gis"
+title = "GIS layers: substations and circuits"
+holder = "UETCL Planning GIS unit"
+requests = [4]
+dataset = "gis"
+criticality = "critical"
+period = "Network as at September 2026, with changes since September 2025 and committed or planned works"
+intro = """
+WHAT THIS IS FOR
+The Grid Atlas draws the transmission network in and around the Central region on a map, and colours each circuit by the loading and losses computed from Planning's network model. For that, every circuit on the map must match one branch in the model. Route lengths let us check the model's line lengths, commissioning years give the age of each asset, and substation positions give each candidate industrial site its distance to the grid.
+
+WHAT TO SEND, IN ORDER OF PREFERENCE
+1. Your own GIS layers, as they are: substations as points and circuits as lines, in the first of these formats you can manage.
+   - A GeoPackage (.gpkg) with layers named substations and circuits.
+   - Otherwise zipped Shapefiles, one zip per layer, with every part: .shp, .shx, .dbf, .prj and .cpg.
+   - Otherwise GeoJSON in WGS 84 (EPSG:4326).
+   - KML or KMZ only if nothing else is possible: it often loses the attribute fields.
+2. The EPSG code of every file, for example EPSG:4326 (WGS 84), EPSG:32636 (WGS 84 / UTM 36N) or EPSG:21096 (Arc 1960 / UTM 36N). Arc 1960 data read as WGS 84 lands about 300 m off.
+3. The crosswalk sheet, only if a list linking names across Planning's model, GIS, NCC reports, SCADA and Commercial exists or is quick to make.
+4. Answers on the questions sheet.
+Your own field names and layout are welcome; tell us which field holds what. The substations and circuits sheets list the minimum attributes for your layers. Shapefiles cut field names to 10 characters, which is fine. If some attributes sit in a spreadsheet, send it with the feature ID on every row. If substation positions exist only in a spreadsheet, give latitude and longitude in decimal degrees (WGS 84), in two separate columns.
+
+THE MINIMUM
+Substations as points with their ID, name and status. One line per circuit with its ID, both end substations, kV and status. The EPSG code of each file.
+
+AREA AND DATE
+- Central: every transmission substation and circuit (above 33 kV). Our working list, with our codes: Kawanda KAW, Mutundwe MUT, Lugogo LUG, Kampala North KNO, Queensway QWY, Namanve NMV, Mukono MUK, Masaka MSK, Kapeeka KAP, Kabulasoke KBS, Nkonge NKG, and the Bujagali BUJ and Nalubaale NAL delivery points. Tell us what it misses.
+- The infeeds, each drawn whole to its far-end substation: the 400 kV infeed to Kawanda (we understand it comes from Karuma, KAR; please confirm), the Bujagali-Kawanda tie, the Masaka-Mbarara tie (Mbarara, MBR), and any other circuit above 33 kV that enters Central.
+- If clipping is extra work, send the national layers as they are. Leave out lines at 33 kV and below.
+- The network as at September 2026, including anything commissioned since September 2025, plus committed and planned works marked by status. Leave out retired circuits, but tell us which circuits or substations were added, retired or rerouted since September 2025 (question 6).
+
+ONE FEATURE PER CIRCUIT
+- A double-circuit line is two features: copy the line, set circuit_no to 1 and 2, and put the other circuit's circuit_id in double_circuit_with.
+- If a route is stored in sections, merge them into one feature. If the conductor changes along the route, list each section with its length in conductor.
+- If a circuit is teed, add the tee point to the substations layer (facility_type tee_point) and split the circuit there.
+- Route lines are enough. If a route exists only as tower points, send the points with the circuit ID and tower number.
+- Fill model_branch_id and model_bus_ids if your layers carry them or Planning can add them quickly. Otherwise leave them blank; we will match by name and position with the Planning mentor.
+
+DELIVERY AND HANDLING
+Due Friday 6 November 2026. If the full set will take longer, send the substations and the circuits in our list first.
+This is critical-infrastructure information. Deliver it only by the route in the handling note: the UETCL share or the server's landing folder. Never use personal email, WhatsApp, USB sticks of unknown origin or personal cloud storage.
+Before sending, delete every landowner, affected-person, parcel, compensation and contact field, and any editor-tracking fields that hold user names. Do not include any personal data. Where a feature is named after a customer, replace the name with a code such as DC-1.
+"""
+
+[[sheets]]
+name = "substations"
+table = "gis_substation"
+title = "Substations (point layer)"
+format = "vector"
+geometry = "Point"
+grain = "one point per substation, switching station, power-station switchyard or tee point"
+key = ["source_id"]
+notes = "Send as a GIS point layer; this sheet lists its attribute fields. Footprint polygons are fine if you hold no points."
+columns = [
+  { name = "source_id", type = "text", required = true, desc = "Your feature ID", example = "EX-SS-001" },
+  { name = "name", type = "text", required = true, desc = "Substation name as you use it", example = "Example A" },
+  { name = "ss_code", type = "text", desc = "Our three-letter code, if known (listed in the README)", example = "EXA" },
+  { name = "facility_type", type = "enum", enum = ["substation", "switching_station", "power_station", "tee_point", "other"], desc = "What the point is", example = "substation" },
+  { name = "kv_levels", type = "text", desc = "Voltage levels, highest first, separated by /", example = "220/132/33" },
+  { name = "model_bus_ids", type = "text", desc = "Bus numbers in Planning's model, separated by ;", example = "2201;1301;3301" },
+  { name = "status", type = "enum", enum = ["existing", "committed", "planned"], required = true, desc = "Status; under construction counts as committed", example = "existing" },
+  { name = "commissioning_year", type = "int", min = 1950, max = 2040, desc = "Year first energised; expected year if not yet built", example = 2003 },
+  { name = "district", type = "text", desc = "District", example = "Example district" },
+  { name = "capture_method", type = "enum", enum = ["survey", "digitised", "approximate", "unknown"], desc = "How the position was captured", example = "survey" },
+  { name = "notes", type = "text", desc = "Anything else", example = "" },
+]
+
+[[sheets]]
+name = "circuits"
+table = "gis_circuit"
+title = "Circuits (line layer), one feature per circuit"
+format = "vector"
+geometry = "LineString"
+grain = "one line feature per circuit"
+key = ["circuit_id"]
+notes = "Send as a GIS line layer; this sheet lists its attribute fields. A double-circuit line is two features, circuit_no 1 and 2, each naming the other in double_circuit_with."
+columns = [
+  { name = "circuit_id", type = "text", required = true, desc = "Your feature ID for this circuit", example = "EX-CCT-001" },
+  { name = "model_branch_id", type = "text", desc = "Branch ID in Planning's network model (from bus, to bus, circuit), if known", example = "1301-1402-1" },
+  { name = "name", type = "text", desc = "Circuit name as you use it", example = "Example A - Example B 1" },
+  { name = "from_substation", type = "text", required = true, desc = "Substation at one end, as named in your substations layer", example = "Example A" },
+  { name = "to_substation", type = "text", required = true, desc = "Substation at the other end", example = "Example B" },
+  { name = "kv", type = "number", unit = "kV", required = true, min = 11, max = 500, warn_min = 66, desc = "Operating voltage", example = 132 },
+  { name = "design_kv", type = "number", unit = "kV", min = 11, max = 500, desc = "Voltage the line is built for, if different", example = "" },
+  { name = "circuit_no", type = "int", min = 1, max = 9, desc = "Circuit number on this route", example = 1 },
+  { name = "double_circuit_with", type = "text", desc = "circuit_id of the other circuit on the same towers", example = "EX-CCT-002" },
+  { name = "conductor", type = "text", desc = "Conductor type and size; if it changes, each section with its km", example = "ACSR Bear" },
+  { name = "route_length_km", type = "number", unit = "km", min = 0, warn_max = 400, desc = "Route length as recorded (line schedule or asset register)", example = 16.4 },
+  { name = "commissioning_year", type = "int", min = 1950, max = 2040, desc = "Year first energised; expected year if not yet built", example = 2003 },
+  { name = "reconductored_year", type = "int", min = 1950, max = 2040, desc = "Year the present conductor was strung, if later", example = "" },
+  { name = "status", type = "enum", enum = ["existing", "committed", "planned"], required = true, desc = "Status; under construction counts as committed", example = "existing" },
+  { name = "capture_method", type = "enum", enum = ["survey", "digitised", "approximate", "unknown"], desc = "How the route was captured; straight lines are approximate", example = "survey" },
+  { name = "notes", type = "text", desc = "Anything else", example = "" },
+]
+
+[[sheets]]
+name = "crosswalk"
+table = "gis_crosswalk"
+title = "Name crosswalk across systems"
+grain = "one row per substation or circuit"
+key = ["entity_type", "gis_feature_id", "planning_model_id"]
+required_sheet = false
+notes = "Only if such a list exists or is quick to make; a table in your GeoPackage is fine too. Leave a cell blank where a system has no name for the item."
+columns = [
+  { name = "entity_type", type = "enum", enum = ["substation", "circuit"], required = true, desc = "What the row describes", example = "circuit" },
+  { name = "planning_model_id", type = "text", desc = "Bus numbers or branch ID in Planning's model; separate several with ;", example = "1301-1402-1" },
+  { name = "gis_feature_id", type = "text", desc = "source_id or circuit_id in your GIS layers", example = "EX-CCT-001" },
+  { name = "ncc_report_name", type = "text", desc = "Name in NCC's monthly Power System Summary", example = "Example A-B 132 kV 1" },
+  { name = "scada_name", type = "text", desc = "Name or bay label as SCADA shows it", example = "EXA LINE EXB 1" },
+  { name = "commercial_name", type = "text", desc = "Name Commercial uses (bulk supply point or meter)", example = "Example A - Example B" },
+  { name = "notes", type = "text", desc = "Anything else", example = "" },
+]
+
+[[sheets]]
+name = "questions"
+table = "qa_answer"
+title = "Questions about your layers"
+format = "qa"
+grain = "one row per question"
+required_sheet = false
+notes = "Q1 (the EPSG code) is essential. Answer here or in your reply."
+questions = [
+  { id = "Q1", text = "What is the EPSG code of each file? If you are not sure, which datum and projection were the data captured in?" },
+  { id = "Q2", text = "Do your layers cover every substation and circuit in our working list, and the three infeeds? Which are missing? Are there Central substations above 33 kV that our list leaves out?" },
+  { id = "Q3", text = "Where does the 400 kV infeed to Kawanda start, and how many circuits does it have?" },
+  { id = "Q4", text = "At Bujagali and Nalubaale, do your layers show the power-station switchyard, a separate substation, or both?" },
+  { id = "Q5", text = "How were the routes and positions captured: survey or GPS, digitised from imagery or maps, or drawn as straight lines? Which circuits are only approximate?" },
+  { id = "Q6", text = "When were the layers last updated? Do they show the network as at September 2026? Which circuits or substations were added, retired or rerouted since September 2025, and when?" },
+  { id = "Q7", text = "Where does route_length_km come from: the line schedule or asset register, or measured from the drawn line?" },
+  { id = "Q8", text = "Are any circuits teed, or looped in at a point that is not a substation? Which ones?" },
+  { id = "Q9", text = "Do your layers carry Planning model bus numbers or branch IDs? If not, can Planning add them, or should we match them ourselves with the Planning mentor?" },
+  { id = "Q10", text = "Do these layers carry a security classification or a use restriction (for example a contractor's licence) that we should record?" },
+]

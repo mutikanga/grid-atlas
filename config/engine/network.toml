@@ -1,0 +1,42 @@
+# Network builder and load-flow settings (owner: F3a).
+# Read by engine/config.py into cfg["network"].
+
+# Conductor temperature that line resistance is corrected to, in degrees C.
+# R_T = R_ref * (1 + 0.00403 * (T - T_ref)); T_ref is each line's r_temp_c (20 C when blank).
+r_temp_c = 50.0
+
+# Which rating set line and transformer loading is measured against:
+# cont (continuous), emerg (emergency), ncc (NCC operating limit), min (lowest of those given).
+# A blank emergency or NCC rating falls back to the continuous rating.
+rating_set = "cont"
+
+# A line counts as Central when "any" end, or "both" ends, are in a Central substation.
+line_in_central = "any"
+
+[scenarios.base]
+# Elements with these statuses are built, if commissioned by the as-of date.
+statuses = ["existing", "committed"]
+
+[scenarios.2030]
+as_of = "2030-12-31"
+statuses = ["existing", "committed", "planned"]
+
+[checks]
+xr_min = 1.5            # line X/R below this is flagged
+xr_max = 15.0           # line X/R above this is flagged
+trafo_kv_tolerance = 0.10   # transformer winding kV may differ from its bus kV by this fraction
+
+[loadflow]
+ladder = ["results", "dc", "flat"]
+max_iteration = 30
+flat_max_iteration = 60     # the flat start gets more iterations
+
+[handbuilt]
+# Line length when the schedule leaves it blank: straight-line distance times this factor.
+routing_factor = 1.2
+# Sub-conductor spacing used when a single-conductor row is bundled (conductors_per_phase > 1).
+bundle_spacing_m = 0.40
+frequency_hz = 50.0
+base_mva = 100.0
+case_date = "2026-09-30"
+default_vm_pu = 1.0

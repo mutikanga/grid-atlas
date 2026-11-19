@@ -1,0 +1,155 @@
+id = "T13"
+slug = "planning_studies"
+title = "Planning criteria, contingency studies and unit costs"
+holder = "UETCL Grid Development and Planning: the Planning mentor"
+requests = [3]
+dataset = "planning_studies"
+criticality = "high"
+period = "Latest Central contingency studies; current planning criteria; unit costs with their price year"
+intro = """
+WHAT THIS IS FOR
+The Grid Atlas runs N-1 contingency checks on the Central network and costs simple loss remedies such as reconductoring. The Atlas supports Planning's work; it does not replace it. So before any N-1 result is shown outside UETCL, we run it on the same case and with your criteria, compare it with your own study results, explain every difference, and ask the Planning mentor to sign the comparison. This workbook carries those criteria and results, the standard unit costs used for paybacks, and the commissioning years used to show asset age.
+
+WHAT TO SEND, IN ORDER OF PREFERENCE
+1. Your latest Central contingency or system-study report with its result tables, as it is (Excel or PDF), and the contingency list it used.
+2. Your planning criteria document, or the Grid Code clauses you apply.
+3. Your standard unit-cost table, with its price year.
+Your native format is welcome; the sheets list the minimum fields. Fill in a sheet only where you have nothing shareable already.
+
+THE MINIMUM
+- criteria: the rating set used in normal operation and after a contingency, the ambient and conductor temperatures behind the line ratings, and the voltage limits in normal operation and after a contingency.
+- contingency_results: for the latest study, every contingency that causes a violation, the element affected, its value and its limit.
+- unit_costs: cost, currency and price year for reconductoring per km by conductor (including ACCC), a 132 kV and a 220 kV bay, a transformer per MVA, and a capacitor bank per MVAr.
+
+ALSO USEFUL
+- questions: a few points the tables cannot carry.
+- studies: one row per study, so we can rebuild the same case.
+- commissioning_years: the year each Central line and transformer was first energised. Skip it if your network-model reply (request 2, T01) or the GIS layers (request 4, T02) already carry it. Load-flow case files usually do not.
+- The planned Kawanda relief goes in the projects sheet of T08_projects_and_loads.xlsx, with relief_for = Kawanda.
+
+HANDLING
+This is critical-infrastructure and commercially sensitive information. Deliver it only by the route in the handling note: the UETCL share or the server's landing folder. Do not include any personal data. Do not send supplier contracts or tender documents: the unit rate, its price year and what it includes are enough.
+"""
+
+[[sheets]]
+name = "questions"
+table = "qa_answer"
+title = "Questions"
+format = "qa"
+grain = "one row per question"
+required_sheet = false
+notes = "Answer in the answer column, or in your reply. Write 'not known' where that is the answer."
+questions = [
+  { id = "Q1", text = "Which loading case does your latest Central study use: year, peak or light load, and dispatch? Is it one of the cases you are sending under request 2?" },
+  { id = "Q2", text = "Which outages do you treat as credible: each line circuit and transformer, both circuits on shared towers, generating units, busbar faults?" },
+  { id = "Q3", text = "Is loss of supply acceptable after a single outage anywhere in Central, for example at a substation fed by one line? Up to how many MW?" },
+  { id = "Q4", text = "What is the planned Kawanda relief, which existing elements does it change, is it funded, and when is it due in service? (Its rows go in the projects sheet of T08.)" },
+  { id = "Q5", text = "What match between the Atlas N-1 table and your results would you accept: the same violations, and loadings within how many percentage points?" },
+  { id = "Q6", text = "Can you set aside an hour in the week of 16 November to review and sign the comparison, before the management preview planned for Friday 20 November? If someone else should sign, who?" },
+  { id = "Q7", text = "Are the unit costs from recent contracts or from estimates? What do they include (supply, installation, civil works, engineering, taxes)?" },
+  { id = "Q8", text = "Where are commissioning years kept, and who keeps them?" },
+]
+
+[[sheets]]
+name = "criteria"
+table = "plan_criterion"
+title = "Planning criteria"
+grain = "one row per criterion, per voltage level or element type where they differ"
+key = ["criterion", "applies_to"]
+notes = "Suggested names: n0_rating_set, n1_rating_set, n1_max_loading_pct, trafo_emergency_loading_pct, rating_ambient_c, rating_conductor_c, normal_v_min_pu, normal_v_max_pu, post_contingency_v_min_pu, post_contingency_v_max_pu. Add your own for anything else."
+columns = [
+  { name = "criterion", type = "text", required = true, desc = "Criterion name; see the suggested names above", example = "n1_rating_set" },
+  { name = "applies_to", type = "text", desc = "Voltage level or element type it covers; all, or blank, if it covers everything", example = "all" },
+  { name = "value", type = "text", required = true, desc = "The value, as a number or in words (continuous, emergency or NCC limit for a rating set)", example = "emergency" },
+  { name = "unit", type = "text", desc = "Unit of the value (pu, %, C), if any", example = "" },
+  { name = "source", type = "text", required = true, desc = "Grid Code clause or planning manual section", example = "Example: planning manual, section x.y" },
+  { name = "notes", type = "text", desc = "Conditions, for example how long an emergency rating may be used", example = "" },
+]
+
+[[sheets]]
+name = "studies"
+table = "plan_study"
+title = "Studies the results come from"
+grain = "one row per study"
+key = ["study_id"]
+required_sheet = false
+columns = [
+  { name = "study_id", type = "text", required = true, desc = "Short code for the study, used in contingency_results", example = "EXST-01" },
+  { name = "title", type = "text", required = true, desc = "Study or report title", example = "Example: Central N-1 study, peak case" },
+  { name = "study_date", type = "date", desc = "Date the study was run or issued", example = "2026-05-15" },
+  { name = "case_year", type = "int", min = 2000, max = 2045, warn_min = 2020, desc = "Year the case represents", example = 2026 },
+  { name = "loading_condition", type = "enum", enum = ["peak", "light_load", "other"], desc = "Loading in the case", example = "peak" },
+  { name = "case_id", type = "text", desc = "case_id in T01, if you sent this case under request 2", example = "EXAMPLE-PEAK" },
+  { name = "tool", type = "enum", enum = ["PSSE", "PowerFactory", "other"], desc = "Tool used", example = "PSSE" },
+  { name = "contingency_set", type = "text", desc = "What was tripped, for example every Central line circuit and transformer", example = "Example: every 132 and 220 kV circuit and transformer" },
+  { name = "report_ref", type = "text", desc = "Report and section the results come from", example = "Example report, chapter 5" },
+  { name = "notes", type = "text", desc = "Anything else, for example dispatch or units out of service", example = "" },
+]
+
+[[sheets]]
+name = "contingency_results"
+table = "plan_contingency_result"
+title = "Contingency results"
+grain = "one row per violation: one contingency and one element outside its limit"
+key = ["study_id", "contingency", "violation_type", "element"]
+notes = "Include non-convergence and loss of supply. Give base_value where your report has it, so we can tell new violations from ones present before the outage."
+columns = [
+  { name = "study_id", type = "text", required = true, desc = "Study from the studies sheet, or a short name", example = "EXST-01" },
+  { name = "case_id", type = "text", desc = "Case the result is for (T01 case_id, if sent)", example = "EXAMPLE-PEAK" },
+  { name = "contingency", type = "text", required = true, desc = "What was tripped, by name", example = "Example A - Example B 132 kV circuit 1" },
+  { name = "contingency_ref", type = "text", desc = "Model ID of what was tripped; several separated by ;", example = "1301-1402-1" },
+  { name = "violation_type", type = "enum", enum = ["overload", "undervoltage", "overvoltage", "non_convergence", "loss_of_supply"], required = true, desc = "Kind of violation", example = "overload" },
+  { name = "element", type = "text", desc = "Bus, line or transformer outside its limit, by name; blank for non_convergence", example = "Example A - Example B 132 kV circuit 2" },
+  { name = "element_ref", type = "text", desc = "Model ID of that element", example = "1301-1402-2" },
+  { name = "base_value", type = "number", min = 0, desc = "Value before the outage, in value_unit", example = 61 },
+  { name = "value", type = "number", min = 0, desc = "Value after the outage: loading, voltage or MW lost", example = 118.5 },
+  { name = "limit", type = "number", min = 0, desc = "Limit it is checked against, in value_unit", example = 100 },
+  { name = "value_unit", type = "enum", enum = ["percent", "MVA", "pu", "kV", "MW"], desc = "Unit of base_value, value and limit", example = "percent" },
+  { name = "rating_basis", type = "text", desc = "Rating used for an overload: continuous, emergency or NCC limit", example = "emergency" },
+  { name = "mitigation", type = "text", desc = "Project (T08 project_id) or operator action that resolves it, if any", example = "EXP-01" },
+  { name = "remark", type = "text", desc = "Anything else", example = "" },
+]
+
+[[sheets]]
+name = "unit_costs"
+table = "plan_unit_cost"
+title = "Standard unit costs"
+grain = "one row per cost item, per voltage level and conductor where they differ"
+key = ["item", "kv", "lv_kv", "conductor"]
+notes = "Suggested items: reconductor_acsr_to_accc_per_km, reconductor_per_km (other conductors), bay_132kv, bay_220kv, transformer_per_mva, capacitor_per_mvar. Give a range in cost_low and cost_high if you have one."
+columns = [
+  { name = "item", type = "text", required = true, desc = "Cost item; see the suggested names above", example = "reconductor_acsr_to_accc_per_km" },
+  { name = "kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Voltage level; for a transformer, the HV side", example = 132 },
+  { name = "lv_kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Transformer LV voltage (transformers only)", example = "" },
+  { name = "conductor", type = "text", desc = "New conductor type and size (lines and reconductoring)", example = "ACCC (example size)" },
+  { name = "unit", type = "text", required = true, desc = "What one unit is: per circuit-km, per route-km, per bay, per MVA, per MVAr", example = "per circuit-km" },
+  { name = "cost", type = "number", required = true, min = 0, desc = "Cost per unit (central value)", example = 12345 },
+  { name = "cost_low", type = "number", min = 0, desc = "Low end of the range, if you give one", example = "" },
+  { name = "cost_high", type = "number", min = 0, desc = "High end of the range, if you give one", example = "" },
+  { name = "currency", type = "enum", enum = ["UGX", "USD"], required = true, desc = "Currency; convert any other to USD and give the rate in notes", example = "USD" },
+  { name = "price_year", type = "int", required = true, min = 1990, max = 2027, warn_min = 2018, desc = "Year the price refers to", example = 2025 },
+  { name = "includes", type = "text", desc = "What the cost covers: supply, installation, civil works, engineering, taxes", example = "Example: supply and stringing, no taxes" },
+  { name = "source", type = "text", desc = "Where it comes from: contract rate, tender or estimate", example = "Example: contract rate" },
+  { name = "notes", type = "text", desc = "Anything else, for example whether outage costs are included", example = "" },
+]
+
+[[sheets]]
+name = "commissioning_years"
+table = "plan_asset_age"
+title = "Commissioning years of Central lines and transformers"
+grain = "one row per line circuit or transformer unit"
+key = ["element_type", "element_ref"]
+required_sheet = false
+notes = "Skip this sheet if T01 (request 2) or T02 (request 4) already carries commissioning_year for every Central line and transformer."
+columns = [
+  { name = "element_type", type = "enum", enum = ["line", "transformer"], required = true, desc = "Line circuit or transformer", example = "line" },
+  { name = "element_ref", type = "text", required = true, desc = "Model ID as in your case, or the name you use", example = "1301-1402-1" },
+  { name = "name", type = "text", desc = "Name", example = "Example A - Example B 132 kV circuit 1" },
+  { name = "from_substation", type = "text", desc = "From substation (lines), or the substation (transformers)", example = "Example A" },
+  { name = "to_substation", type = "text", desc = "To substation (lines only)", example = "Example B" },
+  { name = "kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Nominal voltage; for a transformer, the HV side", example = 132 },
+  { name = "commissioning_year", type = "int", required = true, min = 1940, max = 2026, desc = "Year first energised", example = 2003 },
+  { name = "upgrade_year", type = "int", min = 1940, max = 2026, desc = "Year of the last reconductoring, uprating or major refurbishment, if any", example = "" },
+  { name = "upgrade", type = "text", desc = "What that work was", example = "" },
+  { name = "source", type = "text", desc = "Where the year comes from", example = "Example: line schedule" },
+]

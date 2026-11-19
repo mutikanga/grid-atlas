@@ -1,0 +1,157 @@
+id = "T08"
+slug = "projects_and_loads"
+title = "Planned projects and large loads in Central, to 2030"
+holder = "UETCL Grid Development and Planning (projects and connections) and UETCL Commercial"
+requests = [3, 10]
+dataset = "projects_and_loads"
+criticality = "high"
+period = "Status as at the date sent; projects and loads expected up to the end of 2030; loads connected since September 2025"
+intro = """
+WHAT THIS IS FOR
+The Grid Atlas builds the Central network as it will be in 2030 and works out how much new load each Central substation can take, now and in 2030. It also shows the Kawanda constraint before and after the planned relief. For that it needs the projects that will change the network by 2030, and the large loads that are committed or waiting to connect. Without them the 2030 case is today's grid with every load grown at one rate, which puts the growth in the wrong places.
+
+WHO FILLS WHICH SHEET
+- questions: everyone, for the parts you know.
+- projects: Planning. Grid Development Plan lines, substations, transformers, reconductoring and compensation in Central. The Planning mentor adds the Kawanda relief (request 3).
+- committed_loads: Planning (connections) and Commercial. Large loads connected since September 2025, signed, pending or applied for.
+- sgr_points: Planning. SGR (standard gauge railway) traction supply points in or near Central.
+- ilds_sites: whoever holds it. Industrial Load Development Strategy (ILDS) anchor sites, only if a list exists.
+Each team can return its own copy with only its sheets filled.
+
+WHAT TO SEND, IN ORDER OF PREFERENCE
+1. Your own lists as they are: project schedules, Grid Development Plan tables, your list of connection applications. Excel is best; PDF is fine. Your native format is welcome; the sheets list the minimum fields.
+2. For a project already in your 2030 case (request 2): the basic fields plus its element IDs in model_ref. We take its parameters from the case.
+3. Otherwise, fill in the sheets of this workbook.
+
+THE MINIMUM
+- Each project: what it is, its substations, kV, MVA or conductor, status, and expected in-service month.
+- Each large load: type, substation, MW, status and expected month. No customer names.
+
+DEFINITIONS
+- Large load: 1 MW or more, supplied from a Central substation.
+- Project status: under_construction = works started; committed = funded or contract awarded, works not started; planned = in the plan, not yet funded.
+- Load status: connected = connected since September 2025; signed = connection agreement signed; pending = offered, approved or on hold, not yet signed; applied = application received and under study.
+- A load that comes in phases is one row per phase, each with its own load_ref, MW and month.
+- If Planning and Commercial both hold the same load, send it once.
+
+HANDLING
+This is commercially sensitive, critical-infrastructure information. Deliver it only by the route in the handling note: the UETCL share or the server's landing folder. Do not include customer names, contact details or any other personal data. Use your application number or another code in load_ref, and keep the key yourself.
+"""
+
+[[sheets]]
+name = "questions"
+table = "qa_answer"
+title = "Questions"
+format = "qa"
+grain = "one row per question"
+required_sheet = false
+notes = "Answer in the answer column, or in your reply. Write 'not known' where that is the answer."
+questions = [
+  { id = "Q1", text = "What does the MW in your list of connection applications mean: the applied-for maximum demand, the contracted capacity, or the expected peak draw? If you know how quickly large loads usually ramp up to it, say so." },
+  { id = "Q2", text = "Which applications are on hold because of a network limit, for example at Kawanda? Which project would release them, and when?" },
+  { id = "Q3", text = "Which loads are interruptible by agreement, and on what terms (notice period, hours per year)?" },
+  { id = "Q4", text = "Do any of these loads bring their own generation? If so, what MW will they draw from the grid at peak?" },
+  { id = "Q5", text = "Is there an ILDS anchor-site list? If it is held outside UETCL, who holds it, and can it be shared?" },
+  { id = "Q6", text = "SGR traction supply: which substations will supply it, at what voltage, and from when? Is the supply agreed?" },
+  { id = "Q7", text = "Which edition of the Grid Development Plan is current? Which Central projects have changed date or scope since it was issued?" },
+  { id = "Q8", text = "Does your list cover large loads that UEDCL will connect from a Central substation? If not, who holds them?" },
+]
+
+[[sheets]]
+name = "projects"
+table = "plan_project"
+title = "Network projects in Central, to 2030"
+grain = "one row per project, or per part of a project"
+key = ["project_id"]
+notes = "A project with several parts (for example a line and a transformer) is one row per part: EXP-01a, EXP-01b. Put the Kawanda relief here with relief_for = Kawanda."
+columns = [
+  { name = "project_id", type = "text", required = true, desc = "Your project reference, or a short code; one per row", example = "EXP-01" },
+  { name = "name", type = "text", required = true, desc = "Project name", example = "Example A - Example B 132 kV line" },
+  { name = "type", type = "enum", enum = ["line", "transformer", "substation", "reconductoring", "compensation", "other"], required = true, desc = "What the project (or this part) is", example = "line" },
+  { name = "status", type = "enum", enum = ["committed", "planned", "under_construction"], required = true, desc = "under_construction: works started; committed: funded or awarded; planned: in the plan, not yet funded", example = "planned" },
+  { name = "cod", type = "month", desc = "Expected in-service month", example = "2028-06" },
+  { name = "from_substation", type = "text", desc = "From substation (lines); the substation itself for other types", example = "Example A" },
+  { name = "to_substation", type = "text", desc = "To substation (lines only)", example = "Example B" },
+  { name = "kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Nominal voltage; for a transformer, the HV side", example = 132 },
+  { name = "lv_kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Transformer LV voltage", example = "" },
+  { name = "circuits", type = "int", min = 1, max = 4, desc = "Number of circuits (lines)", example = 2 },
+  { name = "units", type = "int", min = 1, max = 9, desc = "Number of transformer units", example = "" },
+  { name = "length_km", type = "number", unit = "km", min = 0, warn_max = 400, desc = "Route length (lines and reconductoring)", example = 24.5 },
+  { name = "conductor", type = "text", desc = "Conductor type and size (lines and reconductoring)", example = "ACSR Bear" },
+  { name = "mva", type = "number", unit = "MVA", min = 0, warn_max = 1000, desc = "Rating per transformer unit, or continuous rating per line circuit", example = 137 },
+  { name = "mvar", type = "number", unit = "MVAr", min = 0, desc = "Size of a capacitor bank or reactor (say which in notes)", example = "" },
+  { name = "vk_percent", type = "number", unit = "%", min = 0, warn_max = 30, desc = "Transformer short-circuit voltage, if known", example = "" },
+  { name = "existing_element", type = "text", desc = "Existing line or transformer it replaces, uprates or reconductors", example = "" },
+  { name = "relief_for", type = "text", desc = "Substation or constraint it relieves, if any (for example Kawanda)", example = "Example A" },
+  { name = "model_ref", type = "text", desc = "Its element IDs in your 2030 case (request 2), separated by ;", example = "1301-1402-1;1301-1402-2" },
+  { name = "source_document", type = "text", desc = "Where it comes from: plan edition and table, or project file", example = "Example plan, table 4" },
+  { name = "notes", type = "text", desc = "Anything else, for example funding or a change of date", example = "" },
+]
+
+[[sheets]]
+name = "committed_loads"
+table = "plan_committed_load"
+title = "Large loads: connected, signed, pending or applied for"
+grain = "one row per load, or per phase of a phased load"
+key = ["load_ref"]
+notes = "Loads of 1 MW or more supplied from a Central substation. No customer names: load_ref is your application number or another code. A phased load is one row per phase."
+columns = [
+  { name = "load_ref", type = "text", required = true, desc = "Your application number or another code; never the customer's name", example = "EXL-01" },
+  { name = "category", type = "enum", enum = ["data_centre", "industrial_park", "manufacturing", "sgr_traction", "commercial", "other"], required = true, desc = "Type of load", example = "data_centre" },
+  { name = "substation", type = "text", required = true, desc = "Substation that will supply it (the nearest, if not decided)", example = "Example A" },
+  { name = "connection_kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Connection voltage", example = 33 },
+  { name = "mw", type = "number", unit = "MW", required = true, min = 0, warn_min = 1, warn_max = 500, desc = "MW for this load or phase; mw_basis says what it is", example = 12 },
+  { name = "mw_basis", type = "enum", enum = ["requested", "contracted", "expected_peak", "unknown"], desc = "What mw is: applied-for maximum demand, contracted capacity, or expected peak draw", example = "requested" },
+  { name = "pf", type = "number", min = 0, max = 1, warn_min = 0.8, desc = "Power factor, if stated", example = 0.95 },
+  { name = "firm_or_interruptible", type = "enum", enum = ["firm", "interruptible", "unknown"], desc = "interruptible: the agreement lets UETCL interrupt supply when the network is short", example = "firm" },
+  { name = "status", type = "enum", enum = ["signed", "applied", "pending", "connected"], required = true, desc = "connected: since Sep 2025; signed: agreement signed; pending: offered, approved or on hold; applied: under study", example = "pending" },
+  { name = "expected_date", type = "month", desc = "Month it (or this phase) starts drawing power", example = "2027-03" },
+  { name = "ilds_anchor", type = "yn", desc = "Y if it is at an ILDS anchor site", example = "N" },
+  { name = "waiting_for", type = "text", desc = "Project (project_id in the projects sheet) or network limit it waits for, if any", example = "EXP-01" },
+  { name = "notes", type = "text", desc = "Anything else; no names", example = "Example: phase 1 of 2" },
+]
+
+[[sheets]]
+name = "sgr_points"
+table = "plan_sgr_point"
+title = "SGR traction supply points"
+grain = "one row per traction supply point"
+key = ["point_id"]
+required_sheet = false
+notes = "Traction supply points in or near Central. If a point is also in committed_loads, give its load_ref so we count it once."
+columns = [
+  { name = "point_id", type = "text", required = true, desc = "Your reference for the supply point", example = "EXS-01" },
+  { name = "name", type = "text", desc = "Name of the traction substation", example = "Example traction substation 1" },
+  { name = "substation", type = "text", desc = "UETCL substation that will supply it", example = "Example B" },
+  { name = "connection_kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Supply voltage", example = 132 },
+  { name = "mw", type = "number", unit = "MW", min = 0, warn_max = 200, desc = "Expected peak demand", example = 10 },
+  { name = "expected_date", type = "month", desc = "Month supply is needed", example = "2029-01" },
+  { name = "status", type = "enum", enum = ["planned", "committed", "under_construction", "in_service"], desc = "How firm the supply plan is", example = "planned" },
+  { name = "lat", type = "number", unit = "deg", min = -1.6, max = 4.4, desc = "Latitude, WGS 84 decimal degrees, if known", example = 0.6 },
+  { name = "lon", type = "number", unit = "deg", min = 29.4, max = 35.1, desc = "Longitude, WGS 84 decimal degrees, if known", example = 32.4 },
+  { name = "load_ref", type = "text", desc = "load_ref of the same point in committed_loads, if it is there too", example = "" },
+  { name = "notes", type = "text", desc = "Anything else", example = "" },
+]
+
+[[sheets]]
+name = "ilds_sites"
+table = "plan_ilds_site"
+title = "ILDS anchor sites (only if a list exists)"
+grain = "one row per anchor site"
+key = ["site_ref"]
+required_sheet = false
+notes = "Industrial Load Development Strategy anchor sites in Central. If the list is held outside UETCL, say who holds it in the questions sheet instead."
+columns = [
+  { name = "site_ref", type = "text", required = true, desc = "Reference in the list, or a short code", example = "EXI-01" },
+  { name = "name", type = "text", required = true, desc = "Site or area name (not a company name)", example = "Example industrial area" },
+  { name = "district", type = "text", desc = "District", example = "Example district" },
+  { name = "category", type = "enum", enum = ["data_centre", "industrial_park", "manufacturing", "sgr_traction", "commercial", "other"], desc = "Main type of load expected", example = "industrial_park" },
+  { name = "substation", type = "text", desc = "Substation expected to supply it, or the nearest", example = "Example B" },
+  { name = "mw", type = "number", unit = "MW", min = 0, warn_max = 500, desc = "Expected demand, if the list gives one", example = 20 },
+  { name = "expected_date", type = "month", desc = "Month demand is expected to start, if known", example = "2030-01" },
+  { name = "lat", type = "number", unit = "deg", min = -1.6, max = 4.4, desc = "Latitude, WGS 84 decimal degrees, if known", example = 0.6 },
+  { name = "lon", type = "number", unit = "deg", min = 29.4, max = 35.1, desc = "Longitude, WGS 84 decimal degrees, if known", example = 32.4 },
+  { name = "load_ref", type = "text", desc = "load_ref in committed_loads, if the site already has an application", example = "" },
+  { name = "source_document", type = "text", desc = "Document the list comes from", example = "Example strategy, annex 2" },
+  { name = "notes", type = "text", desc = "Anything else", example = "" },
+]

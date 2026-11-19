@@ -1,0 +1,44 @@
+# Profiles and load-flow snapshots (F3b: engine/inputs.py, engine/profiles.py, engine/cases.py).
+# Read as cfg["cases"]. Every key has a default in engine/profiles.py, so a missing key is safe.
+
+# T01 case_id used as the base network. Blank = the first case with case_type
+# "as_operated_peak", otherwise the first case listed. Hand-built networks use "HANDBUILT".
+base_case = ""
+
+# Power factor used when reactive power is missing (no SCADA MVAr, no NCC peak_mvar).
+pf_default = 0.95
+
+# Warn when the factor that scales a substation's shape to NCC's monthly energy
+# falls outside this band. A factor far from 1 usually means a metering or mapping problem.
+scale_warn_low = 0.75
+scale_warn_high = 1.25
+
+# Fallback shapes, used when a substation has no SCADA in the month.
+standard_profiles = "config/profiles/standard_profiles.csv"
+default_class = "mixed"
+# How far (in months) to look for another month of SCADA to borrow a shape from.
+borrow_max_months = 12
+
+# SCADA rows with these quality flags are ignored.
+scada_drop_quality = ["bad", "missing"]
+
+[coincidence]
+# Used for the NCC fallback peak when neither the system peak nor any substation's
+# coincident_mw is known: substation peak x factor. 1.0 means "assume every substation
+# peaks at the same hour", which overstates the peak a little; it is the safe side for N-1.
+default_factor = 1.0
+
+# Load class per substation for the standard shapes. Codes not listed use default_class.
+# Classes: urban_commercial, urban_residential, industrial, mixed.
+[class_by_substation]
+QWY = "urban_commercial"
+KNO = "urban_commercial"
+LUG = "urban_commercial"
+MUT = "urban_residential"
+NMV = "industrial"
+MUK = "mixed"
+KAW = "mixed"
+KAP = "mixed"
+KBS = "mixed"
+NKG = "mixed"
+MSK = "mixed"

@@ -1,0 +1,125 @@
+id = "T04"
+slug = "scada"
+title = "SCADA hourly data for Central"
+holder = "UETCL NCC: SCADA / historian team"
+requests = [6]
+dataset = "scada"
+criticality = "critical"
+period = "September 2025 to September 2026"
+intro = """
+WHAT THIS IS FOR
+The Grid Atlas computes monthly energy losses (MWh) on every line and transformer in the Central region, checks its load-flow model against measured flows and voltages, and finds the hours when Kawanda and other elements are most heavily loaded. Losses grow with the square of the flow, so one snapshot a month cannot give monthly MWh. We need the flows hour by hour, with the real power factor, and the SCADA historian holds them.
+
+WHAT TO SEND, IN ORDER OF PREFERENCE
+1. Hourly averages of MW and MVAr for every measurement point in Central and on its infeeds (line ends, transformer windings, generators and bulk supply points), and kV for every busbar, for every hour from 1 September 2025 00:00 to 30 September 2026 23:00. 30-minute averages are welcome too. One CSV file per month, scada_2025-09.csv to scada_2026-09.csv, with five columns: timestamp, point_id, value, unit, quality. Sheet hourly_data shows the layout.
+2. If that is too much at once: the priority points below for all 13 months, before the other points.
+3. If the historian no longer holds the oldest months: what it holds, most recent months first. Tell us the first month it holds. If it will soon delete its oldest months, please copy them out now so they are not lost.
+With any of these, send the point list (sheet points). Without it the numbers cannot be used.
+Breaker changes (sheet breaker_changes) are useful but not blocking.
+Your native format is welcome; the template lists the minimum fields.
+
+THE MINIMUM, SENT FIRST
+One peak day and one light-load day per month, all 24 hours, for every point, plus the point list. Please export these days first, whatever else you send.
+- Peak day: the day of the month's system peak.
+- Light-load day: the day with the month's lowest demand, usually a Sunday or public holiday, but not a day with a major outage.
+- Kawanda day: where NCC knows of one, a day that month when the Kawanda constraint bound. Add it as a third day.
+NCC reporting has been asked to list these days in request 05 (sheet sample_days of T03_ncc_monthly.xlsx), if possible by Wednesday 4 November 2026. We will pass their list on to you as soon as it arrives. Use their days. If they have not arrived when you are ready, pick the days by the rules above and tell us which you used.
+
+PRIORITY POINTS
+- Every bay at Kawanda, at every voltage: each line, each transformer winding and the 400 kV infeed.
+- The ties that cross the Central boundary, including Bujagali-Kawanda and Masaka-Mbarara, at both ends where measured.
+- MW and MVAr on every 132/33 kV transformer in Central.
+- kV on every 132 kV and 220 kV busbar in Central.
+
+STATIONS
+Central means the stations in the MVP scope of work: Kawanda, Mutundwe, Lugogo, Kampala North, Queensway, Namanve, Mukono, Kapeeka, Kabulasoke, Nkonge and Masaka, plus the Bujagali and Nalubaale delivery points. Infeeds means the ties into these stations, including the 400 kV infeed at Kawanda. Tell us if a station is missing.
+
+HOW TO FILL IT
+- Timestamps are East Africa Time (UTC+3), written YYYY-MM-DD HH:MM, at the start of the interval: 2026-03-12 20:00 is the average from 20:00 to 21:00. If your export uses UTC or the interval end, leave it as it is and tell us.
+- Values are averages over the interval in MW, MVAr, kV (phase to phase) or A. Send amps only where a bay has no MW. Use a decimal point and no thousands separators.
+- Map your quality flags to good, bad, estimated, substituted or missing. Keep doubtful values with their flag. Do not fill gaps or edit values; leave an hour out only if the historian holds no value for it.
+- Sign convention: we assume a positive value means power flowing from the busbar into the bay. Where yours differs, say so in column sign_convention of the points sheet.
+- Answer the questions in sheet questions, or in your reply.
+
+DELIVERY AND HANDLING
+Due Friday 6 November 2026. If it cannot all come by then, send it in this order, each part as soon as it is ready: first the point list and the answers to Q1 to Q3; then the sample days, every point; then the priority points, all 13 months; then everything else. By Friday, please send at least the point list, the answers and the sample days, and the priority points too if you can. Tell us when the rest will follow.
+This is critical-infrastructure information, and point tags are sensitive. Deliver it only by the route in the handling note: the UETCL share or the server's landing folder. Never by personal email, WhatsApp, a USB stick of unknown origin or personal cloud storage. Send no personal data (no operator names, and no log comments that name people), no customer names (use a code such as DC-1, the same code for the same customer in every file), and no passwords, IP addresses or RTU addresses. We work on exported copies only; nothing connects to SCADA.
+"""
+
+[[sheets]]
+name = "points"
+table = "scada_point"
+title = "Point list"
+grain = "one row per measurement point"
+key = ["point_id"]
+notes = "One row for every point_id in the CSV files. A tag export from the historian with these facts is fine. We assume a positive value means power flowing from the busbar into the bay; say so in sign_convention where yours differs."
+columns = [
+  { name = "point_id", type = "text", required = true, desc = "Your tag or point ID, exactly as in the CSV files", example = "EXA.L1.P" },
+  { name = "substation", type = "text", required = true, desc = "Substation name as you use it; we map names to codes", example = "Example A" },
+  { name = "bay", type = "text", required = true, desc = "Bay name; for a direct customer, a code, not the customer's name", example = "Line to Example B circuit 1" },
+  { name = "voltage_kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Nominal voltage of the bay or busbar", example = 132 },
+  { name = "element_type", type = "enum", enum = ["line", "transformer", "generator", "bsp", "busbar", "other"], required = true, desc = "What is measured; bsp is a bulk supply point: a bay supplying UEDCL or a direct customer", example = "line" },
+  { name = "remote_substation", type = "text", desc = "Lines only: the substation at the other end", example = "Example B" },
+  { name = "winding", type = "enum", enum = ["hv", "mv", "lv", "na"], desc = "Transformers only: the winding measured (mv is the middle winding of a three-winding unit)", example = "na" },
+  { name = "element_ref", type = "text", desc = "Planning model ID (T01 line_id or trafo_id), only if you know it", example = "1301-1402-1" },
+  { name = "quantity", type = "enum", enum = ["P", "Q", "V", "I"], required = true, desc = "P active power, Q reactive power, V voltage, I current", example = "P" },
+  { name = "unit", type = "enum", enum = ["MW", "MVAr", "kV", "A"], required = true, desc = "Unit of this point's values in the CSV files", example = "MW" },
+  { name = "sign_convention", type = "text", desc = "What a positive value means", example = "+ = from the busbar into the line" },
+  { name = "interval_minutes", type = "int", min = 1, warn_max = 60, desc = "Interval of the values you send for this point: 60 or 30", example = 60 },
+  { name = "notes", type = "text", desc = "Anything else: calculated point, faulty since a date, CT changed", example = "" },
+]
+
+[[sheets]]
+name = "hourly_data"
+table = "scada_hourly"
+title = "Hourly values: one CSV file per month"
+format = "csv"
+file_pattern = "scada_YYYY-MM.csv"
+grain = "one row per point per interval"
+key = ["timestamp", "point_id"]
+notes = "One CSV file per month, comma-separated, with a header row and these five columns. If you send a month in parts, give each part its own name, such as scada_2026-03_days.csv and scada_2026-03_priority.csv, so that no part overwrites another. Example line: 2026-03-12 20:00,EXA.L1.P,92.4,MW,good"
+columns = [
+  { name = "timestamp", type = "datetime", required = true, desc = "Start of the interval, East Africa Time", example = "2026-03-12 20:00" },
+  { name = "point_id", type = "text", required = true, desc = "Point ID from the points sheet", example = "EXA.L1.P" },
+  { name = "value", type = "number", required = true, warn_min = -5000, warn_max = 5000, desc = "Average over the interval, in the point's unit", example = 92.4 },
+  { name = "unit", type = "enum", enum = ["MW", "MVAr", "kV", "A"], desc = "Unit, as in the points sheet", example = "MW" },
+  { name = "quality", type = "enum", enum = ["good", "bad", "estimated", "substituted", "missing"], desc = "Your quality flag, mapped to one of these values", example = "good" },
+]
+
+[[sheets]]
+name = "breaker_changes"
+table = "scada_breaker"
+title = "Breaker changes"
+grain = "one row per breaker operation"
+key = ["timestamp", "substation", "bay", "breaker_id"]
+required_sheet = false
+notes = "Every open or close of a circuit breaker on a Central bay, September 2025 to September 2026. Useful but not blocking: send it after the hourly data if needed. No operator names."
+columns = [
+  { name = "timestamp", type = "datetime", required = true, desc = "When the breaker changed state, East Africa Time", example = "2026-04-03 19:12" },
+  { name = "substation", type = "text", desc = "Substation name as you use it", example = "Example A" },
+  { name = "bay", type = "text", desc = "Bay name, as in the points sheet", example = "Line to Example B circuit 1" },
+  { name = "breaker_id", type = "text", desc = "Your breaker tag, if the bay has more than one breaker", example = "EXA.L1.CB1" },
+  { name = "element_ref", type = "text", desc = "Planning model ID, only if you know it", example = "" },
+  { name = "new_state", type = "enum", enum = ["open", "closed"], required = true, desc = "State after the change", example = "open" },
+  { name = "reason", type = "text", desc = "Trip, planned outage or switching; event text without names", example = "Example: protection trip" },
+]
+
+[[sheets]]
+name = "questions"
+table = "qa_answer"
+title = "Questions about the export"
+format = "qa"
+grain = "one row per question"
+required_sheet = false
+notes = "Answer here or in your reply. Q1 to Q3 decide how the data is read, so please answer them with the first files."
+questions = [
+  { id = "Q1", text = "What time zone are the timestamps in, and does each one mark the start or the end of the interval?" },
+  { id = "Q2", text = "Are the values averages over the interval or instantaneous samples? If averages, how often is the raw value scanned?" },
+  { id = "Q3", text = "What does a positive MW or MVAr value mean at a line end, a transformer winding, a generator and a bulk supply point? We assume positive means power flowing from the busbar into the bay." },
+  { id = "Q4", text = "How far back does the historian hold hourly or finer data? Which months, stations or points are missing or partial between September 2025 and September 2026?" },
+  { id = "Q5", text = "What quality flags does the historian use, and how did you map them to good, bad, estimated, substituted and missing?" },
+  { id = "Q6", text = "Which Central bays have no MW and MVAr measurement, or one you know is faulty or out of calibration? Since when?" },
+  { id = "Q7", text = "On which side (HV, LV or both) are the Kawanda transformers and each 132/33 kV transformer measured? Is the 400 kV infeed at Kawanda measured, and at which end?" },
+  { id = "Q8", text = "Does the historian also keep transformer tap positions and capacitor or reactor switching? Just tell us; we are not asking for them now." },
+  { id = "Q9", text = "Is our station list complete? Name any Central station or infeed we have missed." },
+]

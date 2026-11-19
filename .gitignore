@@ -1,0 +1,59 @@
+# Grid Atlas: what never goes into git. The pre-commit hook (.githooks/pre-commit)
+# enforces the same rules for files that are added by force.
+
+# Data: synthetic, real, open, basemap, logs, database files, backups. Only the README.
+/data/**
+!/data/README.md
+
+# Secrets and local settings
+.env
+.env.*
+!.env.example
+
+# Release bundle, scratch work
+/dist/
+/tmp/
+
+# Internal board material (and the review that quotes it) stays out of the repo
+/docs/review/
+/docs/*.pdf
+/docs/*.docx
+*.pdf
+*.docx
+*.doc
+
+# Network-model and database formats
+*.raw
+*.RAW
+*.sav
+*.SAV
+*.dgs
+*.DGS
+*.pfd
+*.PFD
+*.dump
+*.backup
+
+# Spreadsheets: only the generated templates in templates/ are tracked
+*.xlsx
+*.xlsm
+*.xls
+*.csv.gz
+!/templates/*.xlsx
+~$*
+
+# Caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.ipynb_checkpoints/
+
+# OS and editor clutter
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

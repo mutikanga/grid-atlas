@@ -1,0 +1,82 @@
+id = "T11"
+slug = "recon_explanations"
+title = "Loss reconciliation: explanations for months outside the 10 % band"
+holder = "Grid Atlas team; every row reviewed by the NCC mentor"
+requests = []
+dataset = "recon_explanations"
+criticality = "high"
+period = "September 2025 to September 2026 (13 months)"
+intro = """
+WHAT THIS IS FOR
+Acceptance criterion 3 compares the Atlas's modelled losses with the metered losses for each of the 13 months, on the like-for-like basis agreed with the NCC mentor. A month passes when the gap is within ±10 %.
+The gate is met when at least 10 of the 13 months pass and no month is left unexplained. This workbook records why the other months miss the band. The engine marks a month EXPLAINED only from rows here, and the Losses page shows them beside the month's gap.
+
+THE RULE
+A month outside the ±10 % band counts as explained only when its rows here give all four of these:
+1. A cause code from the list below.
+2. The MWh of the gap that the cause accounts for (quantified_mwh), wherever it can be worked out. Where it cannot, quantification_note says why.
+3. Evidence that someone else can check (evidence_ref): an import-log issue, an NCC event or meter record, a file on the server, or a page of an NCC report.
+4. The NCC mentor as reviewer: reviewed_by and review_date are filled in only when the NCC mentor accepts the row, by the mentor or from the mentor's written acceptance. The author is never the reviewer.
+A row with no reviewer does not count. If the mentor does not accept a row, reviewed_by stays blank and the mentor's comments go in review_comment. The mentor accepts a month only if its rows, taken together, account for the gap, or say plainly what is left and why.
+
+WHAT TO SEND, IN ORDER OF PREFERENCE
+For each cause, the strongest evidence you can get:
+1. Measured from records: for example NCC's corrected meter reading minus the original, or the energy through an unmetered tie taken from SCADA.
+2. Estimated with the model: for example a sensitivity run of that month with the outage applied, compared with the pinned run.
+3. Not quantifiable: say why in quantification_note, and give the evidence that the cause happened.
+
+HOW TO FILL IT
+- One row per cause code, per month and basis. Two causes in one month are two rows. If one cause has several parts, such as two faulty meters, put them in one row and add up their MWh.
+- Copy run_id, gap_mwh and gap_pct from the Losses page of the pinned run you are explaining. When a new run is pinned, check every row against the new gaps.
+- quantified_mwh has the same sign as the gap: positive when the model is above the metered figure. Say in the explanation whether taking it out brings the month back within ±10 %, and what is left if not.
+- The engine shows its own diagnostics beside each month: SCADA fallback, outage hours, boundary meter gaps, the loss-factor check and the sensitivity to conductor temperature. Cite them as evidence; a diagnostic on its own is not an explanation.
+
+THE MINIMUM
+For each month outside the band, for each basis reported: at least one row with month, basis, cause_code, explanation, quantified_mwh (or quantification_note), evidence_ref and author, then the NCC mentor's acceptance.
+
+CAUSE CODES
+- data_gap: input data missing or estimated for the month, e.g. SCADA days missing so a fallback profile was used, or NCC energy estimated.
+- meter_error: a meter known to be wrong for the month: faulty, replaced, a wrong CT or VT ratio or multiplier, or a reading error NCC has confirmed.
+- outage_topology: the network ran differently from the model for a large part of the month: a line or transformer out, a switching change, a split busbar.
+- boundary_flow_unknown: energy crossed the boundary at a point with no meter, or with readings missing.
+- metering_perimeter: the metered figure and the model cover different things, e.g. transformer losses, meters on the LV side, or 33 kV embedded generation.
+- station_service: substation auxiliary supply counted in the metered losses but not modelled.
+- model_parameter: a model input known to be wrong (impedance, rating, conductor temperature, tap position) and not yet corrected in a new run.
+- event: a trip, disturbance, blackout or load shedding that changed the flows in a way the month's load profile does not capture.
+- other: anything else; the explanation says what.
+
+WHAT AN EXPLANATION IS NOT
+- Not a pass. An explained month still counts against the 10 of 13.
+- Not a fix. The method (power factor, loss factor, slack bus, boundary rules) is fixed before the first comparison and is the same for every month. If you find a data or model error, correct it for all 13 months in a new run. Never change a parameter for one month to close its gap.
+- Calibration months, if any, are named in the method note and kept out of the count. They are not explained here.
+
+DELIVERY AND HANDLING
+The rows describe UETCL metering and network data, which is handled as critical-infrastructure information. Keep the workbook in the Grid Atlas folder on the UETCL share or in the landing folder on the Grid Atlas server.
+Never use personal email, WhatsApp, personal cloud storage or a USB stick of unknown origin.
+The explanations are shown on the Losses page and in its exports, so write for a reader outside the team: plain words, no customer names, no blame on named people.
+Use initials, not full names, for author and reviewed_by. Refer to evidence files; do not paste their contents.
+"""
+
+[[sheets]]
+name = "explanations"
+table = "team_recon_explanation"
+title = "Explanations for months outside the band"
+grain = "one row per cause code, per month and basis"
+key = ["month", "basis", "cause_code"]
+notes = "Copy run_id, gap_mwh and gap_pct from the Losses page. reviewed_by and review_date are filled in only when the NCC mentor accepts the row."
+columns = [
+  { name = "month", type = "month", required = true, desc = "Month being explained", example = "2026-03" },
+  { name = "basis", type = "enum", enum = ["national", "central_boundary", "ncc_central"], required = true, desc = "National model vs NCC national losses, Central boundary-meter balance, or NCC's own Central figure", example = "central_boundary" },
+  { name = "run_id", type = "text", desc = "Pinned run whose gap this row explains, from the Losses page", example = "EXAMPLE-RUN-1" },
+  { name = "gap_mwh", type = "number", unit = "MWh", desc = "The month's gap in that run: modelled minus metered losses", example = 600 },
+  { name = "gap_pct", type = "number", unit = "%", desc = "The same gap as a percentage of the metered losses", example = 15.0 },
+  { name = "cause_code", type = "enum", enum = ["data_gap", "meter_error", "outage_topology", "boundary_flow_unknown", "metering_perimeter", "station_service", "model_parameter", "event", "other"], required = true, desc = "Cause, from the list in the README", example = "meter_error" },
+  { name = "explanation", type = "text", required = true, desc = "What happened, how it moves the gap, and whether removing it brings the month within 10 %", example = "Example: the EXA import meter read low after a CT change on 12 March; NCC corrected the reading in April" },
+  { name = "quantified_mwh", type = "number", unit = "MWh", desc = "MWh of the gap this cause accounts for, same sign as gap_mwh", example = 450 },
+  { name = "quantification_note", type = "text", desc = "How quantified_mwh was worked out, or why it cannot be", example = "Example: NCC's corrected reading minus the original, 12 to 31 March" },
+  { name = "evidence_ref", type = "text", desc = "Where the evidence is: import-log issue, NCC record, file on the server, or report page", example = "Example: NCC meter change record for EXA-M1; import issue 42" },
+  { name = "author", type = "text", required = true, desc = "Team member who wrote the row (initials)", example = "[initials]" },
+  { name = "reviewed_by", type = "text", desc = "NCC mentor (initials), filled in only when the mentor accepts the row", example = "[NCC mentor initials]" },
+  { name = "review_date", type = "date", desc = "Date the NCC mentor accepted the row", example = "2026-11-16" },
+  { name = "review_comment", type = "text", desc = "The mentor's comments, conditions, or reasons for not accepting", example = "" },
+]

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Losses | UETCL Grid Atlas</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/atlas.css">
+  <script src="vendor/chartjs/chart.umd.js" defer></script>
+  <script type="module" src="js/common.js"></script>
+</head>
+<body data-page="losses">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div id="atlas-banner" class="atlas-banner atlas-banner--unknown" role="alert">
+    <strong>CHECKING DATA PROVENANCE</strong>
+    <span>Until this bar changes, treat every figure as SYNTHETIC: NOT UETCL DATA.</span>
+  </div>
+  <noscript><p class="atlas-error"><strong>JavaScript is off.</strong> The Atlas needs it to show data and the provenance banner.</p></noscript>
+  <header class="atlas-header">
+    <a class="atlas-brand" href="index.html"><img src="favicon.svg" alt="" width="26" height="26">UETCL Grid Atlas <small>Central region</small></a>
+    <nav class="atlas-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html">Map</a></li>
+        <li><a href="losses.html" aria-current="page">Losses</a></li>
+        <li><a href="n1.html">Constraints (N-1)</a></li>
+        <li><a href="kawanda.html">Kawanda</a></li>
+        <li><a href="sites.html">Sites</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="imports.html">Imports</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main id="main" class="atlas-main">
+    <h1>Losses</h1>
+    <p class="atlas-lede">Where the Central grid loses energy, month by month: the model against SCADA and the meters, the elements that lose most, and the remedies that pay back.</p>
+    <section class="atlas-section" data-module="js/sections/losses-monthly.js" data-title="Modelled and metered losses by month"></section>
+    <section class="atlas-section" data-module="js/sections/validation-snapshot.js" data-title="Model check against SCADA"></section>
+    <section class="atlas-section" data-module="js/sections/recon-gate.js" data-title="Reconciliation gate"></section>
+    <section class="atlas-section" data-module="js/sections/losses-elements.js" data-title="Losses by element"></section>
+    <section class="atlas-section" data-module="js/sections/remedies-top10.js" data-title="Top 10 loss elements and their remedies"></section>
+  </main>
+  <footer id="atlas-footer" class="atlas-footer">
+    <span>UETCL Grid Atlas (MVP)</span>
+    <span>Run <strong data-run-id>&ndash;</strong></span>
+  </footer>
+</body>
+</html>

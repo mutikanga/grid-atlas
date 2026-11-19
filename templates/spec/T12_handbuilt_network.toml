@@ -1,0 +1,110 @@
+id = "T12"
+slug = "handbuilt_network"
+title = "Hand-built network (fallback if the Planning model is late)"
+holder = "Grid Atlas team, from Planning line and transformer schedules"
+requests = []
+dataset = "handbuilt_network"
+criticality = "high"
+period = "Network as at September 2026"
+intro = """
+WHAT THIS IS FOR
+If Planning's model is late, the team builds an approximate model from line and transformer schedules. The loader turns this workbook into the same shape as T01, using typical conductor values from config/conductors.csv and typical transformer impedances. Every result built on it is labelled APPROXIMATE.
+
+The 10 % loss gate cannot be passed on a hand-built model. Use it to keep the build moving, not to make claims.
+
+HOW TO FILL IT
+- Substation codes are the three-letter codes in config/aliases.csv. Add new ones there first.
+- Leave length_km blank to use the straight-line distance times the routing factor in config/engine.toml.
+- conductor must match a row in config/conductors.csv.
+- Leave vk_percent blank to use a typical value for the transformer's size.
+"""
+
+[[sheets]]
+name = "substations"
+table = "hb_substation"
+title = "Substations"
+grain = "one row per substation"
+key = ["ss_code"]
+columns = [
+  { name = "ss_code", type = "text", required = true, desc = "Three-letter code from config/aliases.csv", example = "EXA" },
+  { name = "name", type = "text", required = true, desc = "Substation name", example = "Example A" },
+  { name = "kv_levels", type = "text", required = true, desc = "Voltage levels, highest first, separated by /", example = "220/132/33" },
+  { name = "lat", type = "number", unit = "deg", required = true, min = -1.6, max = 4.4, desc = "Latitude, WGS 84 decimal degrees", example = 0.41 },
+  { name = "lon", type = "number", unit = "deg", required = true, min = 29.4, max = 35.1, desc = "Longitude, WGS 84 decimal degrees", example = 32.52 },
+  { name = "district", type = "text", desc = "District", example = "Example district" },
+  { name = "in_central", type = "yn", required = true, desc = "Inside the Central reporting zone", example = "Y" },
+  { name = "source", type = "text", desc = "Where the data came from", example = "Planning substation list" },
+]
+
+[[sheets]]
+name = "line_schedule"
+table = "hb_line"
+title = "Line schedule"
+grain = "one row per circuit"
+key = ["from_ss", "to_ss", "kv", "circuit"]
+columns = [
+  { name = "from_ss", type = "text", required = true, desc = "From substation code", example = "EXA" },
+  { name = "to_ss", type = "text", required = true, desc = "To substation code", example = "EXB" },
+  { name = "kv", type = "number", unit = "kV", required = true, min = 33, max = 400, desc = "Nominal voltage", example = 132 },
+  { name = "circuit", type = "int", required = true, min = 1, max = 9, desc = "Circuit number", example = 1 },
+  { name = "length_km", type = "number", unit = "km", min = 0, warn_max = 400, desc = "Route length; blank uses straight line times the routing factor", example = 16.4 },
+  { name = "conductor", type = "text", required = true, desc = "Conductor name as in config/conductors.csv", example = "ACSR Bear" },
+  { name = "conductors_per_phase", type = "int", min = 1, max = 4, desc = "Sub-conductors per phase", example = 1 },
+  { name = "commissioning_year", type = "int", min = 1950, max = 2040, desc = "Year first energised", example = 2003 },
+  { name = "tower_group", type = "text", desc = "Same value for circuits on the same towers", example = "EXA-EXB-132" },
+  { name = "status", type = "enum", enum = ["existing", "committed", "planned"], required = true, desc = "Status", example = "existing" },
+  { name = "source", type = "text", desc = "Where the data came from", example = "Planning line schedule" },
+]
+
+[[sheets]]
+name = "transformer_schedule"
+table = "hb_trafo"
+title = "Transformer schedule"
+grain = "one row per transformer unit"
+key = ["substation", "unit", "hv_kv", "lv_kv"]
+columns = [
+  { name = "substation", type = "text", required = true, desc = "Substation code", example = "EXA" },
+  { name = "unit", type = "int", required = true, min = 1, desc = "Unit number", example = 1 },
+  { name = "mva", type = "number", unit = "MVA", required = true, min = 0, desc = "Rated power", example = 150 },
+  { name = "hv_kv", type = "number", unit = "kV", required = true, desc = "HV voltage", example = 220 },
+  { name = "lv_kv", type = "number", unit = "kV", required = true, desc = "LV voltage", example = 132 },
+  { name = "vk_percent", type = "number", unit = "%", min = 0, warn_max = 30, desc = "Short-circuit voltage; blank uses a typical value", example = 12.5 },
+  { name = "commissioning_year", type = "int", min = 1950, max = 2040, desc = "Year first energised", example = 2012 },
+  { name = "status", type = "enum", enum = ["existing", "committed", "planned"], required = true, desc = "Status", example = "existing" },
+  { name = "source", type = "text", desc = "Where the data came from", example = "Nameplate" },
+]
+
+[[sheets]]
+name = "generators"
+table = "hb_gen"
+title = "Generators"
+grain = "one row per unit (or plant equivalent)"
+key = ["plant", "unit"]
+columns = [
+  { name = "plant", type = "text", required = true, desc = "Plant name", example = "Example Hydro" },
+  { name = "unit", type = "int", required = true, min = 1, desc = "Unit number", example = 1 },
+  { name = "substation", type = "text", required = true, desc = "Connection substation code", example = "EXA" },
+  { name = "connection_kv", type = "number", unit = "kV", required = true, desc = "Connection voltage", example = 132 },
+  { name = "technology", type = "enum", enum = ["hydro", "solar", "thermal", "bagasse", "wind", "import", "other"], required = true, desc = "Technology", example = "hydro" },
+  { name = "p_max_mw", type = "number", unit = "MW", required = true, min = 0, desc = "Maximum output", example = 50 },
+  { name = "p_min_mw", type = "number", unit = "MW", min = 0, desc = "Minimum stable output", example = 10 },
+  { name = "q_min_mvar", type = "number", unit = "MVAr", desc = "Reactive limit, absorbing", example = -20 },
+  { name = "q_max_mvar", type = "number", unit = "MVAr", desc = "Reactive limit, supplying", example = 30 },
+  { name = "status", type = "enum", enum = ["existing", "committed", "planned"], required = true, desc = "Status", example = "existing" },
+  { name = "source", type = "text", desc = "Where the data came from", example = "ERA licence register" },
+]
+
+[[sheets]]
+name = "boundary"
+table = "hb_boundary"
+title = "Boundary treatment"
+grain = "one row per boundary point"
+key = ["substation", "kv"]
+columns = [
+  { name = "substation", type = "text", required = true, desc = "Substation code", example = "EXB" },
+  { name = "kv", type = "number", unit = "kV", required = true, desc = "Voltage level", example = 220 },
+  { name = "kind", type = "enum", enum = ["slack", "pv", "fixed_p"], required = true, desc = "How the outside network is represented", example = "slack" },
+  { name = "vm_pu", type = "number", unit = "pu", min = 0.8, max = 1.2, desc = "Voltage set-point", example = 1.02 },
+  { name = "p_mw", type = "number", unit = "MW", desc = "Fixed exchange (positive = into this network)", example = "" },
+  { name = "note", type = "text", desc = "What the boundary stands for", example = "Example: Nile infeed" },
+]

@@ -1,0 +1,25 @@
+# Grid Atlas Python dependencies, one image for the worker and the API.
+# Pins checked against PyPI on 1 Nov 2026 (docs/dev/implementation-design.md).
+# Regenerate the hashed lock with:  ./atlas lock
+# pandapower 3.5.x requires pandas ~=2.3 and numpy < 2.5; do not float these.
+pandapower==3.5.6
+pandas==2.3.3
+numpy==2.4.4
+scipy>=1.15
+geopandas==1.2.0
+pyogrio
+shapely
+pyproj
+rasterio==1.5.2
+psycopg[binary]==3.3.6
+SQLAlchemy>=2.0,<2.1
+GeoAlchemy2
+openpyxl==3.1.5
+XlsxWriter==3.3.1
+fastapi==0.162.0
+uvicorn==0.54.0
+pytest
+httpx
+# PSS/E RAW, CGMES and PowerFactory DGS import. Linux wheels exist for x86_64 only,
+# so it is installed in the server (amd64) image and skipped on Apple Silicon dev machines.
+pypowsybl==1.16.1 ; platform_machine == "x86_64"

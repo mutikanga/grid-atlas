@@ -1,0 +1,115 @@
+id = "T09"
+slug = "sites"
+title = "Industrial parks and candidate sites"
+holder = "Uganda Investment Authority (UIA), then the Grid Atlas team"
+requests = [13]
+dataset = "sites"
+criticality = "medium"
+period = "Position at the latest date available (ideally September 2026 or later); expected loads up to 2030"
+intro = """
+WHAT THIS IS FOR
+The Grid Atlas is an advisory showcase built by UETCL graduate trainees, to be presented to ERA in late November 2026. One part of it ranks candidate industrial sites in the Central region by how well the grid can supply them: the spare capacity at nearby substations now and in 2030, the effect of a new load on the grid, and land, transport and environmental factors. This workbook asks for the industrial parks and gazetted industrial land that will be those candidate sites, and for the load already allocated to investors, so that spare capacity is not overstated. The Atlas makes no decisions: those stay with UIA, ERA and MEMD.
+
+WHAT TO SEND
+1. Boundaries as a GIS file, one polygon per park or parcel. Formats, in order of preference: a GeoPackage; a Shapefile with all its parts (.shp, .shx, .dbf and .prj), zipped together; GeoJSON; KML or KMZ. State the coordinate reference system as an EPSG code, for example EPSG:21096 (Arc 1960 / UTM zone 36N) or EPSG:4326 (WGS 84). The site_boundaries sheet lists the attributes each polygon needs.
+   - CAD drawings (DWG or DXF) or surveyed beacon coordinates are also fine, with their coordinate system.
+   - If you only have PDF or paper maps, send them. We will digitise them and send you our version to check.
+2. A list of the sites, with their status, hectares, investor loads and supply points. Your native format is welcome; this workbook lists the minimum fields. If your own park register or spreadsheet already holds the fields in the sites sheet, send it as it is. Otherwise, fill in the sites sheet: one row per park, free zone or parcel of gazetted industrial land.
+3. Answers in the questions sheet.
+Leave the metric_overrides sheet blank: it is for the Grid Atlas team.
+
+AREA, DATE AND UNITS
+- The Central region: at least Kampala, Wakiso, Mukono, Buikwe, Mpigi, Luwero, Nakaseke, Gomba and Masaka districts. A national layer is welcome; we will clip it.
+- The position at the latest date you have (ideally September 2026 or later), and expected loads up to 2030. No history is needed.
+- Areas in hectares (1 acre = 0.4047 ha). Loads in MW; if you only have kVA or MVA, write them in notes and we will convert.
+
+THE MINIMUM
+For each site: its name, status, available hectares and a location (a boundary, or a latitude and longitude). The investors' expected load and the planned supply point are the next most useful.
+
+DELIVERY AND HANDLING
+- Deliver only by one of these routes, which follow UETCL's data-handling note (attached): collection by the Grid Atlas team on a UETCL-issued drive, or upload to a UETCL file share through a link sent from an official UETCL email address. Never as an email attachment, and never by personal email, WhatsApp, a USB stick of unknown origin or a personal cloud account.
+- No personal data: no names, phone or ID numbers of any person, landowners included. No names of investors, allottees, customers or occupants, whether people or companies. Give investor loads as one total per site, and delete such fields from GIS layers before sending. The only organisation we ask you to name is the one that owns or develops each park (owner).
+- Your files are kept only on UETCL's internal systems, with UETCL grid data that is handled as critical-infrastructure information. They are used only for the Grid Atlas, and they are not passed on or shown outside UETCL without UIA's agreement.
+"""
+
+[[sheets]]
+name = "sites"
+table = "site_candidate"
+title = "Industrial parks, free zones and industrial land"
+grain = "one row per park, free zone or parcel of industrial land; a part with a different status gets its own row"
+key = ["site_id"]
+notes = "Areas in hectares (1 acre = 0.4047 ha). Loads in MW, as one total per site: never investor names. lat and lon are needed only for a site with no boundary."
+columns = [
+  { name = "site_id", type = "text", required = true, desc = "Your reference for the park or parcel; any short code if you have none", example = "EXA-P1" },
+  { name = "name", type = "text", required = true, desc = "Name of the park or parcel", example = "Example A Industrial Park" },
+  { name = "district", type = "text", desc = "District", example = "Example district" },
+  { name = "kind", type = "enum", enum = ["uia_park", "free_zone", "gazetted_land", "private_estate", "other"], required = true, desc = "UIA park, free zone, gazetted industrial land outside a UIA park, private estate, or other", example = "uia_park" },
+  { name = "status", type = "enum", enum = ["gazetted", "serviced", "planned", "proposed"], required = true, desc = "Most advanced stage reached; serviced means roads, water and power reach the plots", example = "serviced" },
+  { name = "owner", type = "text", desc = "Organisation that owns or develops the land; blank for a private individual", example = "Example Agency" },
+  { name = "area_ha", type = "number", unit = "ha", min = 0, warn_max = 10000, desc = "Gross area", example = 100 },
+  { name = "available_ha", type = "number", unit = "ha", min = 0, warn_max = 10000, desc = "Area not yet allocated and open to new investors", example = 25 },
+  { name = "lat", type = "number", unit = "deg", min = -1.6, max = 4.4, desc = "Latitude of the site centre, WGS 84 decimal degrees (only if no boundary)", example = 0.5 },
+  { name = "lon", type = "number", unit = "deg", min = 29.4, max = 35.1, desc = "Longitude of the site centre, WGS 84 decimal degrees (only if no boundary)", example = 32.5 },
+  { name = "allocated_load_mw", type = "number", unit = "MW", min = 0, warn_max = 300, desc = "Expected demand of all investors allocated land, at full operation: one total, no names", example = 12 },
+  { name = "operating_load_mw", type = "number", unit = "MW", min = 0, warn_max = 300, desc = "Part of allocated_load_mw already operating today", example = 4 },
+  { name = "allocated_load_year", type = "int", min = 2000, max = 2050, desc = "Year by which allocated_load_mw is expected", example = 2029 },
+  { name = "planned_supply_point", type = "text", desc = "Substation, planned substation or feeder that supplies or will supply the site", example = "Example B substation, new 33 kV feeder" },
+  { name = "planned_supply_kv", type = "number", unit = "kV", min = 0.4, max = 400, desc = "Voltage at that supply point", example = 33 },
+  { name = "land_confirmed", type = "yn", desc = "Y if the available land is confirmed free for new investors", example = "Y" },
+  { name = "target_sectors", type = "text", desc = "Industries the site is planned for, separated by ;", example = "agro-processing; light manufacturing" },
+  { name = "source", type = "text", desc = "Where the row comes from: UIA, or the document behind a row the team adds", example = "UIA" },
+  { name = "notes", type = "text", desc = "Anything else, e.g. acres or kVA if that is what your records hold", example = "" },
+]
+
+[[sheets]]
+name = "site_boundaries"
+table = "site_boundary"
+title = "Site boundaries (send as a GIS file)"
+format = "vector"
+geometry = "MultiPolygon"
+grain = "one polygon or multipolygon per site_id"
+key = ["site_id"]
+required_sheet = false
+notes = "Send a GIS file, not this sheet: GeoPackage, Shapefile with all its parts including .prj, GeoJSON, or KML/KMZ, with the EPSG code stated. Single polygons are fine. These are the attributes each polygon needs. Remove any investor, allottee or landowner fields first."
+columns = [
+  { name = "site_id", type = "text", required = true, desc = "Same site_id as in the sites sheet", example = "EXA-P1" },
+  { name = "name", type = "text", desc = "Park or parcel name", example = "Example A Industrial Park" },
+  { name = "status", type = "text", desc = "gazetted, serviced, planned or proposed, as in the sites sheet", example = "serviced" },
+  { name = "boundary_source", type = "text", desc = "How the boundary was made: survey, deed plan, master plan or digitised from a map", example = "survey" },
+]
+
+[[sheets]]
+name = "questions"
+table = "qa_answer"
+title = "Questions for UIA"
+format = "qa"
+grain = "one row per question"
+notes = "Answer in the answer column, or in your reply. A line or two is enough."
+questions = [
+  { id = "Q1", text = "What coordinate reference system do the boundary files use? Please give the EPSG code, or the datum and UTM zone." },
+  { id = "Q2", text = "How were the boundaries made (survey, deed plans, master plan, or digitised from a map), and roughly how accurate are they?" },
+  { id = "Q3", text = "What date are the hectares, allocations and loads correct to?" },
+  { id = "Q4", text = "What does each status mean in your records? In particular, what does serviced include: roads, water, power to each plot?" },
+  { id = "Q5", text = "Where do the investor load figures come from: investor applications, connection applications to UEDCL or UETCL, or UIA estimates? Is each figure the investors' maximum demands added up, or an estimate of the site's combined peak?" },
+  { id = "Q6", text = "For each planned supply point: who will build it (UETCL, UEDCL or the developer), what capacity is planned (MVA), and when is it due? Has a connection been applied for?" },
+  { id = "Q7", text = "Does available_ha exclude roads, wetland and other land that cannot be built on? If a boundary includes such land, can you mark it?" },
+  { id = "Q8", text = "Are there other industrial parks, free zones or private industrial estates in Central that we should include? Who holds their data?" },
+  { id = "Q9", text = "Which of these figures may we show outside UETCL, for example at the ERA session, and which must stay internal?" },
+]
+
+[[sheets]]
+name = "metric_overrides"
+table = "site_metric_override"
+title = "Metric overrides (Grid Atlas team only)"
+grain = "one row per site and metric"
+key = ["site_id", "metric"]
+required_sheet = false
+notes = "For the Grid Atlas team; UIA, please leave this sheet blank. Each row replaces one computed site metric with a sourced value, for example a distance measured on a site visit. Every row needs a source."
+columns = [
+  { name = "site_id", type = "text", required = true, desc = "site_id from the sites sheet", example = "EXA-P1" },
+  { name = "metric", type = "text", required = true, desc = "Metric name exactly as the engine stores it", example = "km_to_trunk_road" },
+  { name = "value", type = "number", required = true, desc = "Value that replaces the computed one", example = 2.5 },
+  { name = "unit", type = "text", desc = "Unit of the value", example = "km" },
+  { name = "source", type = "text", required = true, desc = "Document or survey the value comes from", example = "Example: site visit report" },
+  { name = "notes", type = "text", desc = "Why the computed value is replaced", example = "" },
+]

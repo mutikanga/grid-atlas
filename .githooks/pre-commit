@@ -1,0 +1,87 @@
+#!/bin/sh
+# Grid Atlas pre-commit hook: stops data, secrets and big files from entering git.
+# Enabled per repository by ./atlas init (git config core.hooksPath .githooks).
+#
+# Refused:
+#   - anything under data/ (except data/README.md), dist/, tmp/, docs/review/
+#   - .env and .env.* (except .env.example)
+#   - PDF and Word files (the board paper and the SOW are internal documents)
+#   - network-model and dump formats: *.raw *.sav *.dgs *.pfd *.dump *.backup
+#   - spreadsheets (*.xlsx *.xlsm *.xls) outside templates/
+#   - caches: __pycache__, *.pyc, .pytest_cache, .DS_Store
+#   - any file over 2 MB
+#   - file names git must quote (control characters, a double quote or a backslash)
+set -eu
+
+MAX_BYTES=2097152   # 2 MB
+
+problems=""
+
+# add_problem FILE REASON
+add_problem() {
+    problems="${problems}  $1  ($2)
+"
+}
+
+# Staged files that are added, copied, modified or renamed (deletions are always fine).
+# core.quotePath=false: by default git prints a name with a non-ASCII character
+# (for example "data/Kawanda – loads.csv") in quotes with octal escapes, and the
+# quoted form would slip past every pattern below. Names git still quotes (control
+# characters, a double quote or a backslash) are refused further down.
+staged=$(git -c core.quotePath=false diff --cached --name-only --diff-filter=ACMR)
+
+# Read line by line so file names with spaces work.
+while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    lower=$(printf '%s' "$f" | tr '[:upper:]' '[:lower:]')
+    base=${f##*/}
+
+    case "$f" in
+        \"*) add_problem "$f" "unusual characters in the file name: rename it" ;;
+    esac
+
+    case "$f" in
+        data/README.md) ;;
+        data/*) add_problem "$f" "data/ never goes into git" ;;
+        dist/*) add_problem "$f" "release bundle" ;;
+        tmp/*) add_problem "$f" "temporary file" ;;
+        docs/review/*) add_problem "$f" "the review quotes internal board material" ;;
+    esac
+
+    case "$base" in
+        .env.example) ;;
+        .env|.env.*) add_problem "$f" "secrets file" ;;
+    esac
+
+    case "$lower" in
+        *.pdf|*.docx|*.doc) add_problem "$f" "internal document" ;;
+        *.raw|*.sav|*.dgs|*.pfd|*.dump|*.backup) add_problem "$f" "network model or database dump" ;;
+        *.xlsx|*.xlsm|*.xls)
+            case "$f" in
+                templates/*/*) add_problem "$f" "spreadsheet outside templates/" ;;
+                templates/*) ;;
+                *) add_problem "$f" "spreadsheet outside templates/" ;;
+            esac ;;
+        *__pycache__*|*.pyc|*.pyo|*.pytest_cache*|*.ds_store) add_problem "$f" "cache file" ;;
+    esac
+
+    size=$(git cat-file -s ":$f" 2>/dev/null || echo 0)
+    if [ "$size" -gt "$MAX_BYTES" ]; then
+        add_problem "$f" "$size bytes, over the 2 MB limit"
+    fi
+done <<EOF
+$staged
+EOF
+
+if [ -n "$problems" ]; then
+    cat >&2 <<EOF
+pre-commit: refused. These staged files must not go into git:
+$problems
+Data, secrets, internal documents and model files stay out of the repository
+(docs/dev/contracts.md and data/README.md). Unstage them with:
+    git restore --staged <file>
+If one of them really belongs in git, ask the team lead first.
+EOF
+    exit 1
+fi
+exit 0

@@ -1,0 +1,174 @@
+id = "T05"
+slug = "ncc_operations"
+title = "NCC operations: constraints, curtailment and the outage log"
+holder = "UETCL NCC operations"
+requests = [8]
+dataset = "ncc_operations"
+criticality = "critical"
+period = "September 2025 to September 2026"
+intro = """
+WHAT THIS IS FOR
+The Grid Atlas maps losses, N-1 contingencies and spare capacity for the Central region. Its Kawanda page must show which element limits Kawanda, when it bound, how much demand was curtailed or deferred because of it, and how much more load Kawanda can take before and after the planned relief. The incident log also gives the dashboard its count of incidents due to constraints, tells the loss model which elements were out of service each month, and shows the site scores how often each line and transformer trips, and for how long.
+
+WHAT TO SEND, IN ORDER OF PREFERENCE
+1. The Kawanda constraint, first: answers to Q1 to Q8 on the questions sheet, and the first row of the constraints sheet (code KAW-1). This decides which element we model, so please send it even if the logs take longer.
+2. Your records as you keep them: the incident and outage log, the curtailment and load-shedding records, the standing curtailment and load-shedding instructions, and the list of connection applications deferred because of a constraint. Native exports (Excel or CSV) are welcome. Add your list of cause codes.
+3. Where a record has no export, fill in the sheets of this workbook. They list the minimum fields.
+
+THE MINIMUM
+- Kawanda: the limiting element (transformer, line or other) and its voltage, its operating limit and what sets it, whether it binds at N-0 or N-1, and the relief project with its date.
+- Every curtailment and load-shedding action in Central: start, end, substation, customer category, MW and the reason NCC recorded.
+- The incident and outage log for Central, with a cause for each event and whether a constraint caused it.
+
+PERIOD, TIMES AND CODES
+- 1 September 2025 to 30 September 2026.
+- Times in East Africa Time, written YYYY-MM-DD HH:MM.
+- Give each constraint a short code (KAW-1 for Kawanda) and use it in the other sheets.
+- Never write a customer's name. Use a code such as DC-1 or IND-1, the same code for the same customer in every sheet, and keep the key to the codes on your side. For feeder shedding, put the feeder in customer_ref.
+
+DELIVERY AND HANDLING
+Due Friday 6 November 2026. Please send the Kawanda answers (Q1 to Q8 and row KAW-1) by Wednesday 4 November if you can.
+This is critical-infrastructure information. Deliver it only by the route in the handling note: the Grid Atlas folder on the UETCL share, or the landing folder on the Grid Atlas server. Never use personal email, WhatsApp, personal cloud storage or USB sticks of unknown origin. Send no personal data: no names, phone numbers or email addresses of customers or staff. We do not need relay setting files, passwords or IP addresses.
+
+CONTACT
+If anything is unclear, call the Grid Atlas team: [name, phone].
+"""
+
+[[sheets]]
+name = "questions"
+table = "qa_answer"
+title = "Questions: the Kawanda constraint and the logs"
+format = "qa"
+grain = "one row per question"
+notes = "Answer in the answer column, in your own words. Q1 to Q8 are about Kawanda; please answer those first."
+questions = [
+  { id = "Q1", text = "Our notes call it the 'Kawanda Tx constraint', and Tx can mean transformer or transmission. Which element limits Kawanda: a transformer, a line, a busbar or something else? Name it as on your single-line diagram, with its voltage (for a transformer, its ratio in kV; for a line, its kV, both ends and circuit number)." },
+  { id = "Q2", text = "What is its operating limit, in MVA, and in MW or amps if that is how you apply it? What sets it: the thermal rating, a protection setting, a CT ratio, stability or something else? If it is below the nameplate rating, why?" },
+  { id = "Q3", text = "Does it bind with everything in service (N-0), or only after an outage (N-1)? If N-1, which outage makes it bind? Is a short-time emergency limit allowed after a trip, and for how long?" },
+  { id = "Q4", text = "Is any special protection, inter-trip or automatic load-shedding scheme tied to it? What does it measure, what does it trip, and when does it act (for example, above what loading)?" },
+  { id = "Q5", text = "When did it first bind? Roughly how often did it bind from September 2025 to September 2026, at what times of day, and is it still binding?" },
+  { id = "Q6", text = "The board paper says that, with two Karuma units out in September 2026, UETCL curtailed data centres and exports. A margin note on the paper links that curtailment to the Kawanda constraint instead. Which cause did NCC record for each curtailment and load-shedding action? If both applied, how did you split them?" },
+  { id = "Q7", text = "When customers were curtailed, do SCADA and the monthly reports show the reduced load? Is there a record of what they would have drawn without curtailment, for example their requested or contracted MW?" },
+  { id = "Q8", text = "What is the relief project, what will it add (MVA or circuits), and when is it due in service? Who holds its details?" },
+  { id = "Q9", text = "Which other elements in Central have an NCC operating limit below their rating, or bound at any time from September 2025 to September 2026? Are there special protection schemes in Central that are not tied to one of them? Give each constraint a row in the constraints sheet." },
+  { id = "Q10", text = "How does your incident log record causes? Please send your cause codes with their meanings, and tell us how an incident caused by a constraint is marked." },
+  { id = "Q11", text = "Is the log complete for all 13 months? Note any gaps or changes in how it was kept. Are times in East Africa Time, and are both the trip and the restoration times recorded?" },
+  { id = "Q12", text = "Who holds the list of connection applications deferred because of Kawanda: NCC, Planning or Commercial? If not NCC, whom should we ask?" },
+]
+
+[[sheets]]
+name = "constraints"
+table = "ops_constraint"
+title = "Constraints and operating limits (Kawanda first)"
+grain = "one row per limiting element, or per group of elements sharing one limit"
+key = ["constraint_id"]
+notes = "First row: the Kawanda constraint, code KAW-1 (add KAW-2 and so on if more than one element limits Kawanda). Then every other element in Central with an NCC operating limit below its rating, or that bound at any time from September 2025 to September 2026. If one limit covers a group, for example two transformers together, use one row and name them all."
+columns = [
+  { name = "constraint_id", type = "text", required = true, desc = "Short code that links the other sheets; use KAW-1 for the Kawanda constraint", example = "EXA-1" },
+  { name = "substation", type = "text", required = true, desc = "Substation where the limit sits, named as you use it", example = "Example A" },
+  { name = "element", type = "text", required = true, desc = "Limiting element as on your single-line diagram; name every unit if the limit is shared", example = "Example A transformer T1" },
+  { name = "element_ref", type = "text", desc = "ID in Planning's model, if you know it; we fill it otherwise", example = "T-EXA-1" },
+  { name = "element_type", type = "enum", enum = ["transformer", "line", "busbar", "other"], required = true, desc = "Kind of element", example = "transformer" },
+  { name = "voltage_kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Voltage of a line or busbar; for a transformer, its higher voltage", example = 132 },
+  { name = "lv_kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "For a transformer, its lower voltage", example = 33 },
+  { name = "rating_mva", type = "number", unit = "MVA", min = 0, desc = "Nameplate (transformer) or continuous (line) rating", example = 60 },
+  { name = "limit_mva", type = "number", unit = "MVA", required = true, min = 0, desc = "Operating limit NCC applies, in MVA; if you set it in amps or MW, convert it and say so in notes", example = 60 },
+  { name = "limit_mw", type = "number", unit = "MW", min = 0, desc = "The same limit in MW, if that is how you apply it", example = 54 },
+  { name = "limit_basis", type = "enum", enum = ["thermal", "protection", "ct", "stability", "other"], desc = "What sets the limit: thermal rating, protection setting, CT ratio, stability or other", example = "thermal" },
+  { name = "emergency_limit_mva", type = "number", unit = "MVA", min = 0, desc = "Short-time limit allowed after a trip, if any; say for how long in notes", example = 66 },
+  { name = "binds_at", type = "enum", enum = ["N-0", "N-1", "both"], desc = "Binds with everything in service (N-0), only after an outage (N-1), or both", example = "N-1" },
+  { name = "triggering_contingency", type = "text", desc = "For N-1: the outage that makes it bind", example = "Outage of Example A transformer T2" },
+  { name = "special_scheme", type = "text", desc = "Special protection, inter-trip or automatic load-shedding scheme tied to it: what it watches and trips", example = "Example: sheds two 33 kV feeders if T1 passes 110 %" },
+  { name = "relief_project", type = "text", desc = "Project that will relieve it, and the capacity it adds", example = "Example: third 60 MVA transformer at Example A" },
+  { name = "relief_date", type = "month", desc = "Month the relief is (or was) due in service", example = "2028-01" },
+  { name = "first_seen", type = "month", desc = "Month it first bound or needed action", example = "2025-11" },
+  { name = "notes", type = "text", desc = "Anything else, such as seasonal limits or how long the emergency limit may be held", example = "Example: emergency limit for up to 2 hours" },
+]
+
+[[sheets]]
+name = "constraint_hours"
+table = "ops_constraint_hour"
+title = "When each constraint bound"
+grain = "one row per period a constraint bound"
+key = ["constraint_id", "start_at"]
+notes = "Bound means loading reached the limit, or NCC had to act to keep within it. One row per period, a single hour or longer. If you keep no such log, leave this sheet empty and say so; we will find the hours from SCADA."
+columns = [
+  { name = "constraint_id", type = "text", required = true, desc = "Code from the constraints sheet", example = "EXA-1" },
+  { name = "start_at", type = "datetime", required = true, desc = "When it started to bind (EAT)", example = "2026-03-12 19:00" },
+  { name = "end_at", type = "datetime", required = true, desc = "When it stopped binding (EAT)", example = "2026-03-12 22:00" },
+  { name = "max_loading_pct", type = "number", unit = "%", min = 0, warn_max = 150, desc = "Highest loading in the period, as % of limit_mva", example = 98 },
+  { name = "max_mw", type = "number", unit = "MW", min = 0, desc = "Highest MW through the element in the period", example = 53 },
+  { name = "elements_out", type = "text", desc = "Elements out of service at the time; blank if the network was intact", example = "Example A transformer T2" },
+  { name = "action", type = "text", desc = "What NCC did: curtailed, shed load, switched, or nothing", example = "Curtailed DC-1 and shed feeder F3" },
+  { name = "evidence", type = "enum", enum = ["scada", "operator_log", "instruction", "estimate", "other"], desc = "Where the times come from", example = "scada" },
+]
+
+[[sheets]]
+name = "curtailments"
+table = "ops_curtailment"
+title = "Curtailment and load shedding"
+grain = "one row per customer or feeder per curtailment instruction"
+key = ["start_at", "substation", "customer_category", "customer_ref"]
+notes = "Every curtailment and load-shedding action in Central from September 2025 to September 2026, whatever the reason, so we can tell Kawanda apart from generation shortfall. Never a customer name: use a code such as DC-1, the same code every time. For feeder shedding, put the feeder in customer_ref."
+columns = [
+  { name = "start_at", type = "datetime", required = true, desc = "When the curtailment started (EAT)", example = "2026-03-12 19:10" },
+  { name = "end_at", type = "datetime", required = true, desc = "When supply was restored (EAT)", example = "2026-03-12 21:40" },
+  { name = "substation", type = "text", required = true, desc = "Substation supplying the curtailed load", example = "Example A" },
+  { name = "supply_kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Voltage the curtailed load is supplied at", example = 33 },
+  { name = "customer_category", type = "enum", enum = ["data_centre", "industrial", "export", "domestic_feeder", "other"], required = true, desc = "Kind of load curtailed", example = "data_centre" },
+  { name = "customer_ref", type = "text", desc = "Anonymised customer code, never a name, the same every time; for feeder shedding, the feeder", example = "DC-1" },
+  { name = "mw_curtailed", type = "number", unit = "MW", required = true, min = 0, warn_max = 300, desc = "MW taken off by the instruction", example = 8 },
+  { name = "mwh_curtailed", type = "number", unit = "MWh", min = 0, desc = "Energy not supplied, if you computed it", example = 20 },
+  { name = "action_type", type = "enum", enum = ["customer_curtailment", "feeder_shedding", "automatic_scheme", "other"], desc = "How the load was reduced", example = "customer_curtailment" },
+  { name = "reason", type = "enum", enum = ["kawanda_constraint", "other_network_constraint", "generation_shortfall", "other"], required = true, desc = "Reason NCC recorded at the time", example = "other_network_constraint" },
+  { name = "constraint_id", type = "text", desc = "Code from the constraints sheet, for a network constraint", example = "EXA-1" },
+  { name = "instruction_ref", type = "text", desc = "Your instruction or log reference", example = "EX-INS-031" },
+  { name = "notes", type = "text", desc = "Anything else, for example if two causes applied", example = "" },
+]
+
+[[sheets]]
+name = "deferred_connections"
+table = "ops_deferred_connection"
+title = "Connections deferred by a constraint"
+grain = "one row per connection application"
+key = ["application_date", "substation_or_area", "customer_category", "customer_ref"]
+notes = "Applications in Central that were deferred, refused or left pending at any time from September 2025 to September 2026 because of a network constraint. If Planning or Commercial holds this list, tell us who and leave this sheet empty."
+columns = [
+  { name = "application_date", type = "date", required = true, desc = "Date the application was received", example = "2025-10-06" },
+  { name = "substation_or_area", type = "text", required = true, desc = "Substation or area the customer asked to connect to", example = "Example A" },
+  { name = "customer_category", type = "enum", enum = ["data_centre", "industrial", "export", "domestic_feeder", "other"], required = true, desc = "Kind of load", example = "industrial" },
+  { name = "customer_ref", type = "text", desc = "Anonymised code, never a name", example = "IND-4" },
+  { name = "application_ref", type = "text", desc = "Application number, if you know it; lets us match Planning's list without names", example = "EX-APP-117" },
+  { name = "requested_mw", type = "number", unit = "MW", required = true, min = 0, warn_max = 500, desc = "Demand applied for", example = 15 },
+  { name = "wanted_from", type = "month", desc = "When the customer wanted supply to start", example = "2026-01" },
+  { name = "firm_or_interruptible", type = "enum", enum = ["firm", "interruptible", "unknown"], desc = "Firm supply asked for, or would the customer accept interruptible", example = "firm" },
+  { name = "status", type = "enum", enum = ["deferred", "refused", "pending", "connected_later"], required = true, desc = "Status today", example = "deferred" },
+  { name = "connection_date", type = "month", desc = "Month connected, or the month now offered", example = "2028-03" },
+  { name = "reason", type = "text", desc = "Reason given for deferring or refusing", example = "Example: no firm capacity at Example A before the third transformer" },
+  { name = "constraint_id", type = "text", desc = "Code from the constraints sheet, if a constraint was the reason", example = "EXA-1" },
+]
+
+[[sheets]]
+name = "events"
+table = "ops_event"
+title = "Incident and outage log"
+grain = "one row per element tripped or switched out"
+key = ["start_at", "substation", "element"]
+notes = "Forced trips, planned outages, curtailment and load shedding, blackouts and disturbances, September 2025 to September 2026, for Central and the lines and transformers that feed it. Repeat incident_ref on every row of one incident. cause_code: constraint = a network limit was reached; protection = protection operated wrongly; equipment = equipment failure; weather = lightning, wind or rain; vandalism = theft or damage; generation = generation shortfall or a plant trip; human_error = a switching or operating error; unknown = the cause was not found. If your log uses its own codes, keep them in cause and send us the code list."
+columns = [
+  { name = "incident_ref", type = "text", desc = "Your incident or report number; repeat it on every row of one incident", example = "EX-2026-041" },
+  { name = "start_at", type = "datetime", required = true, desc = "Start of the event (EAT)", example = "2026-03-12 19:10" },
+  { name = "end_at", type = "datetime", desc = "When the element or supply was restored (EAT)", example = "2026-03-12 21:40" },
+  { name = "substation", type = "text", desc = "Substation, as you name it; blank for a system-wide event", example = "Example A" },
+  { name = "element", type = "text", desc = "Line, transformer, busbar, feeder or plant affected", example = "Example A 33 kV feeder F3" },
+  { name = "element_ref", type = "text", desc = "ID in Planning's model, if you know it", example = "" },
+  { name = "voltage_kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Voltage of the element", example = 33 },
+  { name = "event_type", type = "enum", enum = ["forced_trip", "planned_outage", "load_shedding", "blackout", "disturbance", "other"], required = true, desc = "Kind of event; a customer curtailment counts as load_shedding", example = "load_shedding" },
+  { name = "mw_lost", type = "number", unit = "MW", min = 0, desc = "Demand interrupted (for a plant trip, the generation lost)", example = 6 },
+  { name = "mwh_unserved", type = "number", unit = "MWh", min = 0, desc = "Energy not supplied because of the event", example = 15 },
+  { name = "cause_code", type = "enum", enum = ["constraint", "protection", "equipment", "weather", "vandalism", "generation", "human_error", "unknown", "other"], required = true, desc = "Main cause, in our codes (see the note above)", example = "constraint" },
+  { name = "constraint_related", type = "yn", required = true, desc = "Y if a network limit caused it, or it was done to stay within one", example = "Y" },
+  { name = "constraint_id", type = "text", desc = "Code from the constraints sheet, if constraint_related is Y", example = "EXA-1" },
+  { name = "cause", type = "text", desc = "Cause in your own words, or your own cause code", example = "Example: shed to keep T1 within its limit while T2 was out" },
+  { name = "notes", type = "text", desc = "Anything else", example = "" },
+]

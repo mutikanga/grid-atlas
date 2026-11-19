@@ -1,0 +1,82 @@
+id = "T07"
+slug = "uedcl_feeders"
+title = "UEDCL feeders at Central bulk supply points"
+holder = "UEDCL, through UETCL management's introduction: aggregate feeder data only (non-blocking)"
+requests = [14]
+dataset = "uedcl_feeders"
+criticality = "medium"
+period = "September 2025 to September 2026, month by month"
+intro = """
+WHAT THIS IS FOR
+The Grid Atlas is a UETCL project that maps losses, constraints and spare capacity on the transmission network in the Central region, month by month from September 2025 to September 2026. Its primary source is UETCL NCC's substation data. Your feeder figures add two things: how each substation's load splits across your feeders, and which generators sit on each feeder, so that our model neither counts their output twice nor misses it. This request does not block our work. Partial data, or data sent later, still helps.
+
+WHAT TO SEND, IN ORDER OF PREFERENCE
+1. Your own monthly feeder reports, as you already keep them (Excel, CSV or a system export), for every feeder at each Central bulk supply point, September 2025 to September 2026.
+2. If that is harder, fill in the feeders sheet: one row per feeder per month.
+3. Either way, answer the questions sheet, here or in a short note sent with your files.
+Your native format is welcome; the template lists the minimum fields.
+
+THE MINIMUM
+The feeders at each Central bulk supply point, the generators on each feeder, and peak MW and MWh for September 2026 (month 2026-09). The other twelve months can follow.
+
+WHICH SUBSTATIONS
+Central means the substations in our scope: Kawanda, Mutundwe, Lugogo, Kampala North, Queensway, Namanve, Mukono, Kapeeka, Kabulasoke, Nkonge and Masaka, plus the Bujagali and Nalubaale delivery points. Include every UEDCL feeder that leaves any of them. Tell us if we have missed a substation that supplies your Central network, or if one on the list has no UEDCL feeders.
+
+HOW TO FILL IT
+- Every feeder you operate that leaves the substation: normally 33 kV, plus any 11 kV feeder that leaves it directly.
+- A line that connects only a generator is a feeder too. Give it its own row, with feeder_type generator_only.
+- Generators: every generator of 1 MW or more that can export into the feeder, wherever it connects downstream. In embedded_gen_mw, 0 means none and blank means not known.
+- MW, MWh and kV, not kW or kWh. Power factor as a decimal (0.95, not 95). Use a decimal point and no thousands separators.
+- Times are East Africa Time (UTC+3), written YYYY-MM-DD HH:MM.
+- Repeat kv, feeder_type and the generator columns on every month's row.
+- Leave a cell blank if you do not have the figure. Do not fill gaps with estimates unless quality says estimated.
+- Name substations and feeders as you normally do; we map names to our codes.
+
+HANDLING
+Send totals per feeder and per month only. No personal data: no customer names, account numbers, addresses or phone numbers, no readings for individual customers, and no staff names. If a feeder supplies only one customer, set single_customer to Y and do not name the customer. If a feeder's name identifies a customer, use a code instead (for example EXA-F7) and keep the key yourself. We will not show feeder-level figures outside UETCL.
+This is critical-infrastructure information. Deliver it only by the route in the handling note sent with this request: the upload link we send you from an official UETCL email address, or a team member collects the files on a UETCL-issued drive. We move the files to the UETCL share and the Atlas server's landing folder ourselves. Never by personal email, WhatsApp or other chat apps, a USB stick of unknown origin or personal cloud storage, and do not attach data to an email.
+"""
+
+[[sheets]]
+name = "feeders"
+table = "uedcl_feeder_monthly"
+title = "Feeders at Central bulk supply points, by month"
+grain = "one row per feeder per month"
+key = ["month", "bulk_supply_point", "feeder"]
+required_sheet = true
+notes = "One row per feeder per month, 2025-09 to 2026-09. Totals per feeder only: no customer names or customer readings. MW and MWh, not kW and kWh."
+columns = [
+  { name = "month", type = "month", required = true, desc = "Calendar month, YYYY-MM", example = "2026-03" },
+  { name = "bulk_supply_point", type = "text", required = true, desc = "UETCL substation the feeder leaves from, as you name it", example = "Example A" },
+  { name = "feeder", type = "text", required = true, desc = "Feeder name or code as UEDCL uses it (a code if the name identifies a customer)", example = "Example A feeder 3" },
+  { name = "kv", type = "number", unit = "kV", min = 1, max = 66, desc = "Feeder voltage", example = 33 },
+  { name = "feeder_type", type = "enum", enum = ["domestic", "commercial", "industrial", "mixed", "generator_only", "other"], desc = "Main type of load; generator_only for a line that connects only a generator", example = "mixed" },
+  { name = "single_customer", type = "yn", desc = "Y if the feeder supplies only one customer (do not name the customer)", example = "N" },
+  { name = "peak_mw", type = "number", unit = "MW", min = 0, max = 150, warn_max = 40, desc = "Highest demand in the month, from the substation into the feeder", example = 8.6 },
+  { name = "peak_at", type = "datetime", desc = "When the peak happened: start of the demand interval, EAT", example = "2026-03-12 20:00" },
+  { name = "energy_mwh", type = "number", unit = "MWh", min = 0, max = 100000, warn_max = 30000, desc = "Energy delivered from the substation into the feeder in the month", example = 4150 },
+  { name = "reverse_flow_mwh", type = "number", unit = "MWh", min = 0, max = 100000, warn_max = 30000, desc = "Energy that flowed back from the feeder into the substation, if metered; 0 if none", example = 0 },
+  { name = "power_factor", type = "number", min = 0, max = 1, warn_min = 0.7, desc = "Average power factor for the month, as a decimal", example = 0.93 },
+  { name = "load_basis", type = "enum", enum = ["net", "gross", "unknown"], desc = "net = measured at the feeder head, after the feeder's own generation; gross = that generation added back", example = "net" },
+  { name = "quality", type = "enum", enum = ["actual", "estimated", "partial"], desc = "actual = whole month metered; estimated = some readings estimated; partial = data missing for part of the month", example = "actual" },
+  { name = "embedded_gen_mw", type = "number", unit = "MW", min = 0, max = 200, warn_max = 50, desc = "Total installed capacity of generators of 1 MW or more on this feeder; 0 if none, blank if not known", example = 5 },
+  { name = "embedded_gen_plants", type = "text", desc = "Names of those generators, separated by ;", example = "Example Solar" },
+  { name = "embedded_gen_mwh", type = "number", unit = "MWh", min = 0, max = 100000, warn_max = 30000, desc = "Energy those generators produced in the month, if metered", example = 720 },
+  { name = "notes", type = "text", desc = "Anything unusual: feeder transfers, long outages, meter changes", example = "" },
+]
+
+[[sheets]]
+name = "questions"
+table = "qa_answer"
+title = "Questions about the feeder figures"
+format = "qa"
+grain = "one row per question"
+required_sheet = false
+notes = "Answer here or in your reply. Q1 and Q2 decide how we read the figures, so please answer them with the first files."
+questions = [
+  { id = "Q1", text = "Where are the meters behind these figures: at the feeder breaker inside the UETCL substation, or elsewhere on the feeder? Are they the same meters UETCL bills UEDCL from?" },
+  { id = "Q2", text = "Are peak MW and MWh net of the generation on each feeder (measured at the feeder head), or gross (that generation added back)? If it differs by feeder, use the load_basis column." },
+  { id = "Q3", text = "How is power factor worked out: the month's average from MWh and MVArh, or the value at the time of the peak?" },
+  { id = "Q4", text = "How long is the demand interval behind peak MW (15, 30 or 60 minutes)? Does the meter's time stamp mark the start or the end of that interval?" },
+  { id = "Q5", text = "Between September 2025 and September 2026, did any feeder move to another substation, or was any feeder added, split or retired? Which, and when?" },
+]

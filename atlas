@@ -1,0 +1,314 @@
+#!/bin/sh
+# Grid Atlas: the one entry point for every task (the server VM may have no make).
+#
+#   ./atlas help         list the commands
+#
+# Plain POSIX sh, so it runs the same on the Mac and on the Ubuntu server.
+# Everything runs in containers: the host needs only docker (with compose v2) and git.
+set -eu
+
+ROOT=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+cd "$ROOT"
+
+# --- small helpers ------------------------------------------------------------------
+
+die() { printf 'atlas: %s\n' "$*" >&2; exit 1; }
+say() { printf 'atlas: %s\n' "$*"; }
+
+# env_get KEY DEFAULT: the value from the environment, else from .env, else DEFAULT.
+# Reads .env the way docker compose does, so both see the same value: an optional
+# "export ", spaces around "=", quotes ("server" or 'server') and a trailing " # comment".
+env_get() {
+    eval "_v=\${$1:-}"
+    if [ -z "$_v" ] && [ -f .env ]; then
+        _v=$(sed -n \
+            -e "s/^[[:space:]]*export[[:space:]][[:space:]]*$1[[:space:]]*=//p" \
+            -e "s/^[[:space:]]*$1[[:space:]]*=//p" .env | tail -n 1)
+        _v=${_v#"${_v%%[![:space:]]*}"}                  # leading spaces
+        case "$_v" in
+            \"*) _v=${_v#\"}; _v=${_v%%\"*} ;;
+            \'*) _v=${_v#\'}; _v=${_v%%\'*} ;;
+            *) _v=${_v%%[[:space:]]#*}                    # inline comment
+               _v=${_v%"${_v##*[![:space:]]}"} ;;          # trailing spaces
+        esac
+    fi
+    printf '%s' "${_v:-$2}"
+}
+
+# On a Linux host (the server) bind-mounted folders keep their host owner, so the
+# folders the worker writes must belong to uid 10001. On the Mac, Colima maps
+# ownership itself, so there is nothing to do.
+fix_data_owner() {
+    [ "$(uname -s)" = "Linux" ] || return 0
+    for _d in synthetic logs; do
+        [ -d "data/$_d" ] || continue
+        [ "$(stat -c %u "data/$_d")" = "10001" ] && continue
+        say "data/$_d: handing it to uid 10001, the user the worker runs as"
+        if [ "$(id -u)" = "0" ]; then
+            chown -R 10001:10001 "data/$_d"
+        elif ! docker run --rm --network none --user 0 -v "$ROOT/data":/d \
+                --entrypoint chown "gridatlas-db:$(env_get ATLAS_VERSION dev)" \
+                -R 10001:10001 "/d/$_d"; then
+            say "warning: could not change the owner; run: sudo chown -R 10001:10001 data/$_d"
+        fi
+    done
+}
+
+compose() { docker compose "$@"; }
+
+py_image() { printf 'gridatlas-py:%s' "$(env_get ATLAS_VERSION dev)"; }
+
+need_env() {
+    [ -f .env ] || die "no .env here: run ./atlas init first"
+}
+
+# The worker must be running for engine commands.
+need_worker() {
+    need_env
+    if [ -z "$(compose ps --status running -q worker 2>/dev/null)" ]; then
+        die "the worker is not running: start the stack with ./atlas up"
+    fi
+}
+
+# worker_cli CMD ARGS...: run python -m engine.cli inside the running worker.
+worker_cli() {
+    need_worker
+    compose exec -T worker python -m engine.cli "$@"
+}
+
+# run_script NAME ARGS...: run scripts/NAME, which another owner writes.
+run_script() {
+    _s="scripts/$1"
+    shift
+    [ -f "$_s" ] || die "$_s does not exist yet (owned by the operations slice, S12)"
+    sh "$_s" "$@"
+}
+
+# A random password: 48 hex characters, safe inside a database URL.
+random_password() {
+    od -An -tx1 -N24 /dev/urandom | tr -d ' \n'
+}
+
+# --- commands -----------------------------------------------------------------------
+
+cmd_help() {
+    cat <<'EOF'
+Usage: ./atlas <command> [arguments]
+
+Set up and run the stack
+  init                 create .env (random passwords), set the git hooks path, make data/ folders
+  up                   start the four containers and wait until they are healthy
+  down                 stop the stack (data in ./data/pgdata is kept; never uses -v)
+  ps                   show the containers
+  logs [service] ...   recent logs (add -f to follow)
+  build                build the images (lead or F1 only)
+  lock                 regenerate docker/requirements.lock with uv (needs internet)
+  psql [args]          psql as postgres inside the db container
+  reset                dev only: stop, delete ./data/pgdata, start again (asks first)
+
+Engine (run inside the worker: python -m engine.cli ...)
+  migrate              apply db/migrations
+  templates            rebuild the template workbooks and the ts DDL, then migrate
+  synth [--variant base|line_bound|dirty] [--seed 42]
+  load [--root data/synthetic] [--dataset X]
+  run [--stages a,b] [--pin]
+  pin RUN_ID
+  report               short summary of the current run
+  scratch NAME         private database gridatlas_NAME for tests (prints its DATABASE_URL)
+
+Checks and release
+  test [unit|integration|all] [paths] [pytest args]
+                       unit tests run without a database; e.g. ./atlas test unit tests/unit/core -x
+  verify               acceptance checks (scripts/verify.sh)
+  bundle VERSION       amd64 release bundle for the USB stick, into ./dist (scripts/bundle.sh)
+  basemap              build the offline basemap into ./data/basemap (scripts/make_basemap.sh)
+EOF
+}
+
+cmd_init() {
+    if [ -f .env ]; then
+        say ".env exists, left as it is"
+    else
+        [ -f .env.example ] || die ".env.example is missing"
+        _pg=$(random_password)
+        _rw=$(random_password)
+        _ro=$(random_password)
+        # umask 077: only the owner may read the passwords.
+        (umask 077 && sed \
+            -e "s/^POSTGRES_PASSWORD=CHANGE_ME\$/POSTGRES_PASSWORD=$_pg/" \
+            -e "s/^ATLAS_RW_PASSWORD=CHANGE_ME\$/ATLAS_RW_PASSWORD=$_rw/" \
+            -e "s/^ATLAS_RO_PASSWORD=CHANGE_ME\$/ATLAS_RO_PASSWORD=$_ro/" \
+            .env.example > .env)
+        grep -q '=CHANGE_ME$' .env && die ".env still holds CHANGE_ME: check .env.example"
+        say "wrote .env with new random passwords"
+    fi
+    if [ -d .git ]; then
+        git config core.hooksPath .githooks   # repo-local (.git/config), never global
+        say "git hooks path set to .githooks"
+    else
+        say "no .git here: run 'git init -b main' and then ./atlas init again for the hooks"
+    fi
+    for _d in synthetic real open open/layers basemap logs backups pgdata auth; do
+        mkdir -p "data/$_d"
+    done
+    mkdir -p tmp dist
+    fix_data_owner
+    say "data/ folders ready"
+}
+
+cmd_up() {
+    need_env
+    [ -d data/pgdata ] || die "data/pgdata is missing: run ./atlas init"
+    fix_data_owner
+    compose up -d --wait --wait-timeout 1200 "$@" || {
+        compose ps
+        die "not every container became healthy: see ./atlas logs"
+    }
+    compose ps
+}
+
+cmd_down() {
+    for _a in "$@"; do
+        case "$_a" in
+            -v|--volumes|-v*) die "refusing 'down -v': it would delete volumes. Use ./atlas reset in dev." ;;
+        esac
+    done
+    compose down "$@"
+}
+
+cmd_logs() {
+    need_env
+    compose logs --tail=200 "$@"
+}
+
+cmd_lock() {
+    # Same as the lead's first lock: uv inside a throwaway python container.
+    docker run --rm -v "$ROOT":/w -w /w python:3.12-slim-bookworm sh -c '
+        pip install --quiet --root-user-action=ignore uv &&
+        uv pip compile docker/requirements.in --universal --generate-hashes \
+            --python-version 3.12 -o docker/requirements.lock'
+    say "docker/requirements.lock regenerated: rebuild with ./atlas build"
+}
+
+cmd_templates() {
+    # The worker mounts templates/ and db/migrations/ read-only, so the files are
+    # generated in a one-off container (no network), then the worker migrates.
+    docker run --rm --network none --user "$(id -u):$(id -g)" \
+        -v "$ROOT/templates":/app/templates \
+        -v "$ROOT/db/migrations":/app/db/migrations \
+        -w /app -e PYTHONDONTWRITEBYTECODE=1 \
+        "$(py_image)" sh -c 'python templates/build_templates.py && python templates/ddl.py'
+    if [ -n "$(compose ps --status running -q worker 2>/dev/null)" ]; then
+        worker_cli migrate
+    else
+        say "the stack is not running: run ./atlas migrate after ./atlas up"
+    fi
+}
+
+# first_is_path ARGS...: true when the first argument is a test path rather than a
+# pytest option (./atlas test unit tests/unit/core -x). Then the default folder is
+# left out; otherwise pytest would get tests/unit as well and run every unit test.
+first_is_path() {
+    [ $# -gt 0 ] && [ "${1#-}" = "$1" ]
+}
+
+# Unit tests: pure, no database, no network, project mounted read-only.
+test_unit() {
+    first_is_path "$@" || set -- tests/unit "$@"
+    docker run --rm --network none --user 10001:10001 --read-only \
+        --tmpfs /tmp:size=512m,mode=1777 \
+        -v "$ROOT":/app:ro -w /app \
+        -e PYTHONPATH=/app -e PYTHONDONTWRITEBYTECODE=1 -e HOME=/tmp \
+        -e TZ=Africa/Kampala -e MPLCONFIGDIR=/tmp/.matplotlib \
+        "$(py_image)" pytest -q -p no:cacheprovider "$@"
+}
+
+# Integration tests run inside the worker against scratch databases.
+test_integration() {
+    need_worker
+    first_is_path "$@" || set -- tests/integration "$@"
+    compose exec -T worker pytest -q -p no:cacheprovider "$@"
+}
+
+cmd_test() {
+    _which=${1:-unit}
+    [ $# -gt 0 ] && shift
+    case "$_which" in
+        unit) test_unit "$@" ;;
+        integration) test_integration "$@" ;;
+        all) test_unit "$@" && test_integration "$@" ;;
+        *) die "usage: ./atlas test [unit|integration|all] [pytest args]" ;;
+    esac
+}
+
+cmd_bundle() {
+    [ $# -ge 1 ] || die "usage: ./atlas bundle VERSION   (for example 0.1.0)"
+    # buildx: the docker plugin if installed, else Homebrew's standalone binary (this Mac).
+    if docker buildx version >/dev/null 2>&1; then
+        ATLAS_BUILDX="docker buildx"
+    elif [ -x /opt/homebrew/opt/docker-buildx/bin/docker-buildx ]; then
+        ATLAS_BUILDX=/opt/homebrew/opt/docker-buildx/bin/docker-buildx
+    else
+        die "docker buildx not found (needed to build the amd64 images)"
+    fi
+    export ATLAS_BUILDX
+    run_script bundle.sh "$@"
+}
+
+cmd_psql() {
+    need_env
+    if [ -t 0 ]; then
+        compose exec db psql -U postgres -d gridatlas "$@"
+    else
+        compose exec -T db psql -U postgres -d gridatlas "$@"
+    fi
+}
+
+cmd_reset() {
+    need_env
+    # Allow-list, not deny-list: anything but exactly "dev" (server, Server, prod, a
+    # typo) is refused, because this deletes the database.
+    _env=$(env_get ATLAS_ENV dev)
+    [ "$_env" = "dev" ] || die "reset is for dev only (ATLAS_ENV=$_env)"
+    printf 'This deletes the Atlas database in ./data/pgdata (dev only). Type RESET to go on: '
+    read -r _answer || _answer=""
+    [ "$_answer" = "RESET" ] || die "cancelled"
+    compose down
+    # Postgres owns these files inside the VM; if the host cannot delete them, a
+    # container running as root can.
+    if ! rm -rf data/pgdata 2>/dev/null; then
+        docker run --rm -v "$ROOT/data":/d --entrypoint rm \
+            "gridatlas-db:$(env_get ATLAS_VERSION dev)" -rf /d/pgdata
+    fi
+    mkdir -p data/pgdata
+    say "database deleted; starting again"
+    cmd_up
+}
+
+# --- dispatch -----------------------------------------------------------------------
+
+[ $# -ge 1 ] || { cmd_help; exit 1; }
+_cmd=$1
+shift
+case "$_cmd" in
+    help|-h|--help) cmd_help ;;
+    init) cmd_init ;;
+    up) cmd_up "$@" ;;
+    down) cmd_down "$@" ;;
+    ps) need_env; compose ps "$@" ;;
+    logs) cmd_logs "$@" ;;
+    build) need_env; compose build "$@" ;;
+    lock) cmd_lock ;;
+    migrate|synth|load|run|pin|report) worker_cli "$_cmd" "$@" ;;
+    scratch)
+        [ $# -ge 1 ] || die "usage: ./atlas scratch NAME"
+        worker_cli scratch "$@" ;;
+    templates) cmd_templates ;;
+    test) cmd_test "$@" ;;
+    verify) run_script verify.sh "$@" ;;
+    bundle) cmd_bundle "$@" ;;
+    basemap) run_script make_basemap.sh "$@" ;;
+    psql) cmd_psql "$@" ;;
+    reset) cmd_reset ;;
+    *) cmd_help >&2; die "unknown command: $_cmd" ;;
+esac

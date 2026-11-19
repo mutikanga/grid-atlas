@@ -1,0 +1,130 @@
+# Grid Atlas web server (rendered by the nginx image's envsubst at start-up into
+# /etc/nginx/conf.d/default.conf; only ${ATLAS_*} variables are substituted).
+#
+# What it does:
+#   - serves the static pages from ./web, the basemap and the method notes;
+#   - proxies /api/ and /export/ to the api container (path kept as is);
+#   - allows GET and HEAD only, from the ATLAS_ALLOW_CIDR range only;
+#   - sends a strict Content-Security-Policy, so any external URL fails loudly;
+#   - optional basic auth: set ATLAS_AUTH_FILE (see .env.example).
+
+# Basic auth is off unless ATLAS_AUTH_FILE names an htpasswd file.
+map "${ATLAS_AUTH_FILE}" $atlas_auth_realm {
+    ""      off;
+    default "Grid Atlas";
+}
+
+# Only Swagger UI (/api/docs) needs an inline script; everything else is 'self' only.
+map $uri $atlas_csp {
+    ~^/api/docs  "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'";
+    default      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'";
+}
+
+# Live data and exports are never cached; static files for a short while.
+map $uri $atlas_cache {
+    ~^/(api|export)/  "no-store";
+    =/healthz         "no-store";
+    default           "public, max-age=300";
+}
+
+server {
+    listen 80 default_server;
+    server_name _;
+    server_tokens off;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    charset utf-8;
+    charset_types text/plain text/css text/csv application/javascript application/json application/geo+json image/svg+xml;
+
+    client_max_body_size 16k;           # GET only, so there is no upload
+
+    # The allow-list. 127.0.0.1 is the container's own health check.
+    allow 127.0.0.1;
+    allow ${ATLAS_ALLOW_CIDR};
+    deny all;
+
+    auth_basic $atlas_auth_realm;
+    auth_basic_user_file "${ATLAS_AUTH_FILE}";
+
+    # Read-only service: anything but GET and HEAD gets 405.
+    if ($request_method !~ ^(GET|HEAD)$) {
+        return 405;
+    }
+
+    # Headers for every response, errors included. Set only here (never in a
+    # location), because an add_header inside a location would drop these.
+    add_header Content-Security-Policy $atlas_csp always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Cache-Control $atlas_cache always;
+
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_min_length 1024;
+    gzip_types application/json application/geo+json application/javascript text/javascript
+               text/css image/svg+xml text/plain text/csv;
+
+    location = /healthz {
+        access_log off;
+        auth_basic off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # Docker's internal DNS; looked up per request, so a restarted api is found again.
+    resolver 127.0.0.11 valid=10s ipv6=off;
+
+    # Proxy settings for /api/ and /export/ (inherited by both locations).
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Connection "";
+    proxy_hide_header Cache-Control;          # ours (no-store) wins
+    proxy_hide_header Content-Security-Policy;
+    proxy_connect_timeout 5s;
+    proxy_read_timeout 60s;
+
+    location ^~ /api/ {
+        set $atlas_api http://api:8000;
+        proxy_pass $atlas_api;          # no URI part: the request path is passed unchanged
+    }
+
+    location ^~ /export/ {
+        set $atlas_api http://api:8000;
+        proxy_pass $atlas_api;
+        proxy_read_timeout 120s;        # large xlsx exports
+    }
+
+    # /basemap/ and /methods/ are mounted beside the web root
+    # (/usr/share/nginx/basemap and /usr/share/nginx/methods).
+    location ^~ /basemap/ {
+        root /usr/share/nginx;
+        location ~* \.geojson$ {
+            types { }
+            default_type application/geo+json;
+        }
+    }
+
+    location ^~ /methods/ {
+        root /usr/share/nginx;
+        autoindex on;
+        location ~* \.md$ {
+            types { }
+            default_type text/plain;    # with "charset utf-8" above
+        }
+    }
+
+    location ~* \.geojson$ {
+        types { }
+        default_type application/geo+json;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}

@@ -1,0 +1,157 @@
+id = "T06"
+slug = "commercial"
+title = "Commercial: tariff, bulk sales, deemed energy and plant agreements"
+holder = "UETCL Commercial: bulk supply tariff and billing; power purchase agreements and generator invoices"
+requests = [9]
+dataset = "commercial"
+criticality = "high"
+period = "September 2025 to September 2026, month by month; the plant list as it stands now"
+intro = """
+WHAT THIS IS FOR
+The Grid Atlas maps losses, constraints and spare capacity on the Central region network. It puts a value in UGX on three separate figures for September 2025 to September 2026: technical losses, deemed energy and suppressed demand. A kWh of loss saved is valued as a range: from the energy charge of the plant whose purchase it avoids (zero if that energy would have been deemed anyway) up to the ERA-approved bulk supply tariff. Energy sold per bulk supply point cross-checks the monthly loss balance, and the plant list tells the model what feeds Central and on what terms. These totals and ranges may be shown to ERA once UETCL management has cleared them, so they must rest on your records, not on proposals or older years.
+
+WHAT TO SEND, IN ORDER OF PREFERENCE
+1. Your own reports and exports, as they are: the ERA tariff decision, monthly bulk billing summaries, deemed-energy records or claim summaries, generator purchase summaries, and any plant or PPA summary you keep. Excel or CSV is best; PDF is fine for the ERA decision. Tell us which sheet of this workbook each file stands for.
+2. Where you have no such export, fill in the matching sheet of this workbook.
+3. In either case, answer the questions sheet, including which items are confidential.
+Your native format is welcome; the template lists the minimum fields.
+
+THE MINIMUM
+- tariffs: the approved bulk supply tariff for every month, with the ERA decision reference.
+- deemed_energy: kWh and UGX per plant per month, with the cause as recorded.
+- bsp_sales: kWh per bulk supply point per month, with each direct customer by code.
+- energy_charges: the energy charge per plant per month.
+- plants_ppa: one row per plant in or feeding Central.
+- questions: Q1, which items are confidential.
+
+HOW TO FILL IT
+- Energy in kWh, money in UGX, months as YYYY-MM, dates as YYYY-MM-DD. Use a decimal point and no thousands separators.
+- Where a charge is set in USD, give the UGX figure actually paid and the exchange rate in notes.
+- In the monthly sheets, one row covers one calendar month. If your figures follow invoice months or meter-reading dates instead, keep them as they are and say so in Q4.
+- Name substations, supply points and plants as you normally do; we map names to our codes.
+- Deemed energy means energy a plant could have delivered but the grid could not take. Demand that could not be supplied (load shedding, curtailed customers) is a different figure and does not belong here.
+
+HANDLING
+This is commercially sensitive and critical-infrastructure information. Deliver it only by the route in the handling note: the UETCL share or the server's landing folder. Never by personal email, WhatsApp, a USB stick of unknown origin or personal cloud storage. Send no personal data (no names, phone numbers or ID numbers of any person) and no customer names or account numbers. Give each direct customer a code that stays the same every month (DC-1, DC-2 and so on) and keep the key to the codes yourself. We follow your confidentiality marking: anything you mark confidential is used only in the Atlas calculations and is not shown outside UETCL unless you agree.
+"""
+
+[[sheets]]
+name = "tariffs"
+table = "com_tariff"
+title = "ERA-approved bulk supply tariff"
+grain = "one row per tariff per period it applied"
+key = ["tariff_code", "effective_from", "approval_status"]
+notes = "Cover every month from September 2025 to September 2026 with no gaps: one row each time the tariff changed. If a month's tariff was first provisional or only proposed, give each version as its own row and mark its approval_status. If an approved tariff was revised later, give the revised rate and say what changed in notes."
+columns = [
+  { name = "effective_from", type = "date", required = true, desc = "First day the tariff applied", example = "2025-09-01" },
+  { name = "effective_to", type = "date", desc = "Last day it applied; blank if still in force", example = "2025-12-31" },
+  { name = "tariff_code", type = "text", required = true, desc = "Your code or name for the tariff", example = "EXAMPLE-BST" },
+  { name = "ugx_per_kwh", type = "number", unit = "UGX/kWh", required = true, min = 0, warn_min = 10, warn_max = 1000, desc = "Energy rate charged", example = 123.45 },
+  { name = "approval_status", type = "enum", enum = ["approved", "provisional", "proposed"], desc = "Approved by ERA, provisional, or only proposed", example = "approved" },
+  { name = "era_decision_ref", type = "text", desc = "ERA decision or approval reference", example = "EXAMPLE-DECISION-01" },
+  { name = "era_decision_date", type = "date", desc = "Date of the ERA decision", example = "2025-08-15" },
+  { name = "notes", type = "text", desc = "Other parts of the tariff (such as a demand charge), revisions, anything else", example = "" },
+]
+
+[[sheets]]
+name = "bsp_sales"
+table = "com_bsp_sales"
+title = "Energy sold per bulk supply point and direct customer"
+grain = "one row per month per bulk supply point and buyer (per meter where a point has several)"
+key = ["month", "bulk_supply_point", "customer_type", "customer_ref", "meter_id"]
+notes = "All bulk supply points in one export if that is easiest; at least those at the Central substations (Kawanda, Mutundwe, Lugogo, Kampala North, Queensway, Namanve, Mukono, Kapeeka, Kabulasoke, Nkonge and Masaka). A direct customer gets a code, never a name, and keeps the same code every month."
+columns = [
+  { name = "month", type = "month", required = true, desc = "Month the energy was delivered", example = "2026-03" },
+  { name = "bulk_supply_point", type = "text", required = true, desc = "Bulk supply point as you name it", example = "Example A 33 kV" },
+  { name = "substation", type = "text", desc = "Grid substation the point is at", example = "Example A" },
+  { name = "customer_type", type = "enum", enum = ["uedcl", "direct_customer", "export", "other"], required = true, desc = "Who the energy is sold to; other covers other distributors", example = "uedcl" },
+  { name = "customer_ref", type = "text", desc = "Code for a direct customer or other buyer, such as DC-1, never a name; blank for UEDCL", example = "" },
+  { name = "meter_id", type = "text", desc = "Billing meter ID", example = "EXA-M1" },
+  { name = "metering_kv", type = "number", unit = "kV", min = 0.4, max = 400, desc = "Voltage at the billing meter", example = 33 },
+  { name = "energy_kwh", type = "number", unit = "kWh", required = true, warn_min = 0, desc = "Energy billed for the month", example = 41250000 },
+  { name = "amount_ugx", type = "number", unit = "UGX", warn_min = 0, desc = "Amount billed for that energy", example = 5092312500 },
+  { name = "estimated", type = "yn", desc = "Y if the reading was estimated", example = "N" },
+  { name = "notes", type = "text", desc = "Exchange rate if billed in USD, corrections, anything else", example = "" },
+]
+
+[[sheets]]
+name = "deemed_energy"
+table = "com_deemed_energy"
+title = "Deemed energy per plant"
+grain = "one row per plant per month (split by cause and constraint location if your records do)"
+key = ["month", "plant", "cause", "constraint_location"]
+notes = "Every plant with deemed energy in the period, across the country, including plants on 33 kV. Deemed energy only: energy the plant could have delivered but the grid could not take, paid under its agreement. Load shedding and curtailed customers do not belong here. If your records list several events in one month with the same cause and location, add them into one row."
+columns = [
+  { name = "month", type = "month", required = true, desc = "Month the energy was deemed (see Q4 if you only have invoice months)", example = "2026-03" },
+  { name = "plant", type = "text", required = true, desc = "Plant name as you use it", example = "Example Solar" },
+  { name = "deemed_kwh", type = "number", unit = "kWh", required = true, warn_min = 0, desc = "Energy deemed", example = 250000 },
+  { name = "amount_ugx", type = "number", unit = "UGX", required = true, warn_min = 0, desc = "Amount payable for it", example = 24690000 },
+  { name = "cause", type = "enum", enum = ["evacuation_constraint", "surplus", "other", "unknown"], desc = "evacuation_constraint: the grid could not carry it; surplus: no demand for it", example = "evacuation_constraint" },
+  { name = "cause_recorded", type = "text", desc = "Cause in the words of your records", example = "Example: line EXA-EXB out of service" },
+  { name = "constraint_location", type = "text", desc = "For an evacuation constraint: the substation, line or 33 kV feeder", example = "Example A 33 kV feeder 2" },
+  { name = "claim_status", type = "enum", enum = ["accrued", "invoiced", "verified", "paid", "disputed"], desc = "Where the claim stands", example = "verified" },
+  { name = "notes", type = "text", desc = "Anything else", example = "" },
+]
+
+[[sheets]]
+name = "energy_charges"
+table = "com_energy_charge"
+title = "Energy charge per plant"
+grain = "one row per plant per month"
+key = ["month", "plant"]
+notes = "Every plant UETCL buys energy from, not only Central: a kWh of loss saved avoids buying from whichever plant was at the margin. Capacity payments have their own column because a loss saving does not avoid them. If plant-level charges cannot leave Commercial, give one row per month with plant = Not named, the energy charge of the most expensive plant running that month whose energy is paid only when taken (not take-or-pay), and a line in notes on how you chose it."
+columns = [
+  { name = "month", type = "month", required = true, desc = "Month", example = "2026-03" },
+  { name = "plant", type = "text", required = true, desc = "Plant name as you use it", example = "Example Thermal" },
+  { name = "energy_charge_ugx_per_kwh", type = "number", unit = "UGX/kWh", required = true, min = 0, warn_min = 1, warn_max = 2000, desc = "Energy charge paid per kWh in the month", example = 98.76 },
+  { name = "take_or_pay", type = "yn", desc = "Y if the plant is paid for its energy whether or not it is taken", example = "N" },
+  { name = "energy_purchased_kwh", type = "number", unit = "kWh", warn_min = 0, desc = "Energy bought from the plant in the month", example = 3000000 },
+  { name = "capacity_charge_ugx", type = "number", unit = "UGX", warn_min = 0, desc = "Capacity (availability) payment for the month", example = 150000000 },
+  { name = "notes", type = "text", desc = "How the charge is set, the exchange rate used, anything else", example = "Example: USD charge converted at the invoice-date rate" },
+]
+
+[[sheets]]
+name = "plants_ppa"
+table = "com_plant"
+title = "Plants in or feeding Central: agreement summary"
+grain = "one row per plant"
+key = ["plant"]
+notes = "At least Namanve, Kabulasoke, Nkonge, Kapeeka and Bujagali, plus any other plant connected inside Central or feeding it directly whose agreement Commercial holds. One or two lines on the deemed-energy terms are enough; we do not need the agreements themselves."
+columns = [
+  { name = "plant", type = "text", required = true, desc = "Plant name as you use it", example = "Example Hydro" },
+  { name = "owner", type = "text", desc = "Company that owns or operates the plant", example = "Example Power Ltd" },
+  { name = "technology", type = "enum", enum = ["hydro", "solar", "thermal", "bagasse", "wind", "import", "other"], required = true, desc = "Technology", example = "hydro" },
+  { name = "installed_mw", type = "number", unit = "MW", min = 0, warn_max = 1000, desc = "Installed capacity", example = 50 },
+  { name = "contracted_mw", type = "number", unit = "MW", min = 0, warn_max = 1000, desc = "Capacity contracted in the agreement", example = 48 },
+  { name = "dependable_mw", type = "number", unit = "MW", min = 0, warn_max = 1000, desc = "Dependable capacity as you define it; say the basis in notes", example = 40 },
+  { name = "connection_substation", type = "text", required = true, desc = "Grid substation it connects to, or whose 33 kV feeder it is on", example = "Example A" },
+  { name = "connection_kv", type = "number", unit = "kV", required = true, min = 0.4, max = 400, desc = "Connection voltage", example = 132 },
+  { name = "connection_feeder", type = "text", desc = "33 kV feeder, if the plant is embedded in the distribution network", example = "" },
+  { name = "metering_point", type = "text", desc = "Where its energy is metered for billing", example = "Example A 132 kV, plant line bay" },
+  { name = "cod", type = "month", desc = "Commercial operation date", example = "2014-01" },
+  { name = "ppa_expiry", type = "month", desc = "Month the agreement ends", example = "2034-01" },
+  { name = "deemed_terms", type = "text", desc = "Deemed-energy terms in outline: when payable, how the kWh is worked out, at what price", example = "Example: energy available but not taken, paid at the energy charge" },
+  { name = "operating_status", type = "enum", enum = ["operating", "standby", "retired", "under_construction"], required = true, desc = "Status now; note any change since September 2025 in notes", example = "operating" },
+  { name = "confidential", type = "yn", desc = "Y if anything in this row is confidential; say who may see it in Q1", example = "N" },
+  { name = "notes", type = "text", desc = "Anything else, such as an agreement extended past its expiry", example = "" },
+]
+
+[[sheets]]
+name = "questions"
+table = "qa_answer"
+title = "Questions about the data"
+format = "qa"
+grain = "one row per question"
+required_sheet = false
+notes = "Answer here or in your reply. Q1 and Q4 decide how we may use and read the data, so please answer them with the first files."
+questions = [
+  { id = "Q1", text = "Which of the items you send are confidential? For each sheet or column, say who may see it: the Atlas team only, UETCL staff, or ERA as a total or range." },
+  { id = "Q2", text = "Which bulk supply tariff applied in each month from September 2025 to September 2026? Was any month provisional or revised later? Does the tariff have parts other than a single energy rate, such as a demand charge or time-of-day rates?" },
+  { id = "Q3", text = "How is deemed energy worked out under the agreements, in outline? Which unit records the cause, and from which record (for example NCC dispatch instructions or plant availability declarations)?" },
+  { id = "Q4", text = "Do your monthly figures follow calendar months? If deemed energy is recorded by invoice month, or sales by meter-reading date, say which and give the reading dates." },
+  { id = "Q5", text = "Are the bulk supply point billing meters on the high-voltage or low-voltage side of the 132/33 kV transformers? Is the energy billed at a point just its meter reading, or does it add the output of plants embedded on the 33 kV feeders behind it?" },
+  { id = "Q6", text = "Are energy charges set in UGX, or in USD (or another currency) and converted? At which exchange rate?" },
+  { id = "Q7", text = "Which plants were on take-or-pay terms, and in which months?" },
+  { id = "Q8", text = "Do you reconcile monthly bulk sales with NCC's delivered energy? If so, what differences are usual, and why?" },
+  { id = "Q9", text = "For any plant in or feeding Central whose agreement Commercial does not hold, which unit or organisation holds it?" },
+]

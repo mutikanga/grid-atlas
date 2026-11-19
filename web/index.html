@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Map | UETCL Grid Atlas</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="css/map.css">
+  <link rel="stylesheet" href="css/atlas.css">
+  <script src="vendor/chartjs/chart.umd.js" defer></script>
+  <script src="vendor/leaflet/leaflet.js" defer></script>
+  <script type="module" src="js/common.js"></script>
+  <script type="module" src="js/map.js"></script>
+</head>
+<body data-page="index" class="atlas-map-page">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div id="atlas-banner" class="atlas-banner atlas-banner--unknown" role="alert">
+    <strong>CHECKING DATA PROVENANCE</strong>
+    <span>Until this bar changes, treat every figure as SYNTHETIC: NOT UETCL DATA.</span>
+  </div>
+  <noscript><p class="atlas-error"><strong>JavaScript is off.</strong> The Atlas needs it to show data and the provenance banner.</p></noscript>
+  <header class="atlas-header">
+    <a class="atlas-brand" href="index.html"><img src="favicon.svg" alt="" width="26" height="26">UETCL Grid Atlas <small>Central region</small></a>
+    <nav class="atlas-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html" aria-current="page">Map</a></li>
+        <li><a href="losses.html">Losses</a></li>
+        <li><a href="n1.html">Constraints (N-1)</a></li>
+        <li><a href="kawanda.html">Kawanda</a></li>
+        <li><a href="sites.html">Sites</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="imports.html">Imports</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main id="main" class="atlas-map-layout">
+    <h1 class="visually-hidden">Map of the Central grid</h1>
+    <div id="map" role="region" aria-label="Map of the Central grid: substations and circuits"></div>
+    <aside id="map-panel" class="atlas-map-panel" aria-label="Map controls and details">
+      <p class="atlas-loading">Loading the map&hellip;</p>
+    </aside>
+    <div id="month-slider" class="atlas-month-slider" aria-label="Month"></div>
+  </main>
+  <footer id="atlas-footer" class="atlas-footer">
+    <span>UETCL Grid Atlas (MVP)</span>
+    <span>Run <strong data-run-id>&ndash;</strong></span>
+  </footer>
+</body>
+</html>

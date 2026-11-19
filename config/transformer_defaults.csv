@@ -1,0 +1,7 @@
+mva_min,mva_max,vk_percent,vkr_percent,pfe_percent,i0_percent,source
+0,20,10.0,0.60,0.10,0.15,"typical, verify against Planning data or nameplate"
+20,40,10.5,0.45,0.08,0.10,"typical, verify against Planning data or nameplate"
+40,80,12.5,0.35,0.06,0.08,"typical, verify against Planning data or nameplate"
+80,160,12.5,0.30,0.05,0.06,"typical, verify against Planning data or nameplate"
+160,400,14.0,0.25,0.04,0.05,"typical, verify against Planning data or nameplate"
+400,10000,15.0,0.20,0.03,0.04,"typical, verify against Planning data or nameplate"

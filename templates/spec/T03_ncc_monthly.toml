@@ -1,0 +1,244 @@
+id = "T03"
+slug = "ncc_monthly"
+title = "NCC monthly reporting and metering"
+holder = "UETCL NCC: reporting, and metering / energy accounting"
+requests = [5, 7]
+dataset = "ncc_monthly"
+criticality = "critical"
+period = "September 2025 to September 2026"
+intro = """
+WHAT THIS IS FOR
+The Grid Atlas models the Central region's transmission network to show where power is lost, which lines and transformers are constrained, and how much spare capacity each substation has. Its loss check compares the model's monthly losses with NCC's for September 2025 to September 2026. That check is only fair if both figures count the same meters, voltage levels and transformer losses. This workbook asks for NCC's monthly figures, the definitions behind them, and the meter readings needed for an energy balance of the Central region.
+
+WHO FILLS WHAT
+- NCC reporting (request 05): definitions, system_summary, losses_by_voltage, substation_monthly, generation_monthly, deemed_unserved, sample_days.
+- NCC metering and energy accounting (request 07): boundary_meters, internal_meters, and questions Q3 to Q6 and Q11 to Q14 in definitions.
+
+WHAT TO SEND, IN ORDER OF PREFERENCE
+1. Your own files, as they are. NCC reporting: the 13 monthly Power System Summaries as Excel workbooks, not PDF. NCC metering: the monthly export of your energy accounting, as Excel or CSV. We read native layouts with a small adapter, so you need not copy them into this workbook.
+2. Answers to the questions in the definitions sheet. We need these whatever else you send.
+3. Sheets your Summaries probably do not cover: deemed_unserved (deemed and unserved energy apart, with their causes), sample_days, and the count of incidents due to constraints in system_summary.
+4. Any other sheet here only where your own files lack the fields.
+Your native format is welcome; the template lists the minimum fields.
+
+THE MINIMUM
+- The 13 monthly Power System Summaries in Excel, and answers to Q1 to Q7 (NCC reporting and NCC metering between them).
+- Deemed energy and unserved energy as separate figures for every month.
+- Monthly MWh in both directions on every circuit that crosses the Central boundary, including the 400 kV infeed to Kawanda, with each meter's accuracy class and a flag for estimated readings.
+
+THE CENTRAL REGION
+Central means the substations in the MVP scope of work: Kawanda, Mutundwe, Lugogo, Kampala North, Queensway, Namanve, Mukono, Kapeeka, Kabulasoke, Nkonge and Masaka. A boundary circuit links one of them to a substation or plant outside this list: at least the 400 kV infeed to Kawanda, Bujagali-Kawanda, Masaka-Mbarara, and any circuit arriving from Nalubaale or the Jinja side. Send its meter at whichever end it is, or both ends if both are metered. Tell us if your energy accounting draws Central differently.
+
+HOW TO FILL IN THE SHEETS
+- One workbook for all 13 months, or one per month: either is fine.
+- Energy in MWh and power in MW. Energy figures are primary values, with CT and VT ratios applied.
+- Months as YYYY-MM. Times as YYYY-MM-DD HH:MM in East Africa Time, at the start of the interval.
+- Name substations, plants and circuits as you normally do; we map the names to our codes.
+- Leave a cell blank if you do not have the value. Do not type 0 for "not known".
+- Examples use made-up names (Example A, EXA, EXB). They are not our estimates of any real figure.
+
+HANDLING
+This is critical-infrastructure information. Deliver it only by the route in the handling note: the Grid Atlas folder on the UETCL share, or the landing folder on the Atlas server. Never by personal email, WhatsApp, personal cloud storage or a USB stick of unknown origin. Send no personal data: no customer or staff names and no phone numbers. Identify a direct customer by a code such as DC-1, never by name, and use the same code NCC operations uses for request 08. We do not need meter passwords, communication settings or network addresses.
+"""
+
+[[sheets]]
+name = "definitions"
+table = "qa_answer"
+title = "Definitions: how the figures are made"
+format = "qa"
+grain = "one row per question"
+notes = "Answer in the answer column, in your own words; 'not known' is a useful answer. NCC reporting: Q1 to Q3 and Q5 to Q10. NCC metering: Q3 to Q6 and Q11 to Q14. The answers decide what the model's losses are compared with, so we need them even if you send your own files."
+questions = [
+  { id = "Q1", text = "How are the losses by voltage level in the Power System Summary worked out: from meters, estimated, or from the state estimator? Which meters are used for each voltage level?" },
+  { id = "Q2", text = "Does the 132 kV loss figure include the losses in the 220/132 kV and 132/33 kV transformers? Does it include substation station supply? Are 400 kV losses inside it, reported separately, or not reported?" },
+  { id = "Q3", text = "Can NCC produce a monthly energy balance for the Central region from boundary meters? If your energy accounting already uses a Central or Kampala-metro zone, which substations does it cover? Which boundary circuits have no meter?" },
+  { id = "Q4", text = "Are the bulk supply point meters on the HV (132 kV) or LV (33 kV) side of the 132/33 kV transformers? Name any that differ." },
+  { id = "Q5", text = "Are the substation loads in the Summary net of generation embedded at 33 kV (the plant's output already taken off) or gross (the plant's output added back)? Does this differ by substation or plant?" },
+  { id = "Q6", text = "Which months contain estimated or substituted readings, and for which figures or meters? Was any month's Summary revised after it was issued?" },
+  { id = "Q7", text = "What time zone do the Summary's timestamps use, for example the time of the peak? Does a timestamp mark the start or the end of the interval? Is the peak an instantaneous, 15-minute, 30-minute or hourly value?" },
+  { id = "Q8", text = "How are energy sent out and energy delivered defined? Does sent out include imports? Does delivered include exports and station supply? Are the losses simply sent out minus delivered?" },
+  { id = "Q9", text = "What does NCC count as an incident due to a constraint? Which kinds of event count? Is an incident that lasts several hours, or repeats on several days, counted once or each time?" },
+  { id = "Q10", text = "How do you separate deemed energy, unserved energy and load shedding in the Summary? In which of them do you record the curtailment of a large customer, such as a data centre?" },
+  { id = "Q11", text = "Is the 400 kV infeed to Kawanda metered? At which end of the line, and at which voltage?" },
+  { id = "Q12", text = "Are the energies you send primary values, with CT and VT ratios already applied? If not, give the multiplier for each meter." },
+  { id = "Q13", text = "How are missing or faulty readings filled: from a check meter, from SCADA, or estimated? Which boundary or Central meters were replaced, recalibrated or faulty between September 2025 and September 2026, and when?" },
+  { id = "Q14", text = "Do the boundary meters store interval data (15- or 30-minute load profiles)? If so, which ones? We may ask for three months of it later; nothing is needed now." },
+]
+
+[[sheets]]
+name = "system_summary"
+table = "ncc_system_monthly"
+title = "System summary (whole national grid)"
+grain = "one row per month"
+key = ["month"]
+notes = "Whole national grid, as in the Power System Summary. If you send the Summaries in Excel, fill only month, the four required figures as the Summary gives them, and constraint_incidents; we read the rest from your files. Keep deemed and unserved energy as separate figures."
+columns = [
+  { name = "month", type = "month", required = true, desc = "Calendar month", example = "2026-03" },
+  { name = "generated_mwh", type = "number", unit = "MWh", min = 0, desc = "Energy generated, as your Summary defines it", example = 98000 },
+  { name = "imported_mwh", type = "number", unit = "MWh", min = 0, desc = "Energy imported over interconnectors", example = 3000 },
+  { name = "exported_mwh", type = "number", unit = "MWh", min = 0, desc = "Energy exported over interconnectors", example = 1000 },
+  { name = "sent_out_mwh", type = "number", unit = "MWh", required = true, min = 0, desc = "Energy sent out into the grid, as your Summary defines it", example = 100000 },
+  { name = "delivered_mwh", type = "number", unit = "MWh", required = true, min = 0, desc = "Energy delivered out of the grid, as your Summary defines it", example = 96500 },
+  { name = "losses_mwh", type = "number", unit = "MWh", required = true, warn_min = 0, desc = "Transmission losses", example = 3500 },
+  { name = "losses_pct", type = "number", unit = "%", warn_min = 0, warn_max = 15, desc = "Losses as a percentage, as your Summary gives it", example = 3.5 },
+  { name = "station_supply_mwh", type = "number", unit = "MWh", min = 0, desc = "Substation station supply, if reported separately", example = "" },
+  { name = "peak_mw", type = "number", unit = "MW", required = true, min = 0, warn_max = 5000, desc = "System peak demand", example = 200 },
+  { name = "peak_at", type = "datetime", desc = "Date and time of the peak (EAT)", example = "2026-03-12 20:00" },
+  { name = "min_mw", type = "number", unit = "MW", min = 0, desc = "System minimum demand", example = 90 },
+  { name = "min_at", type = "datetime", desc = "Date and time of the minimum (EAT)", example = "2026-03-15 04:00" },
+  { name = "deemed_mwh", type = "number", unit = "MWh", min = 0, desc = "Deemed energy: generation available but not taken, paid under agreements", example = 1200 },
+  { name = "unserved_mwh", type = "number", unit = "MWh", min = 0, desc = "Demand not supplied, including load shedding and curtailment; not deemed energy", example = 300 },
+  { name = "constraint_incidents", type = "int", min = 0, desc = "Incidents this month that NCC attributes to a network constraint (see Q9)", example = 2 },
+  { name = "estimated", type = "yn", desc = "Y if any figure for this month includes estimated readings", example = "N" },
+  { name = "notes", type = "text", desc = "Anything else, such as a revision after the Summary was issued", example = "" },
+]
+
+[[sheets]]
+name = "losses_by_voltage"
+table = "ncc_losses_by_voltage"
+title = "Losses by voltage level"
+grain = "one row per month, scope and voltage level"
+key = ["month", "scope", "voltage_level"]
+notes = "Only if your Summaries do not show losses by voltage level for every month. transformation = losses in grid transformers, where you report them apart from the lines. Say in Q1 and Q2 how each figure is worked out."
+columns = [
+  { name = "month", type = "month", required = true, desc = "Calendar month", example = "2026-03" },
+  { name = "scope", type = "enum", enum = ["national", "central", "other"], required = true, desc = "Area the figure covers", example = "national" },
+  { name = "voltage_level", type = "enum", enum = ["400", "220", "132", "transformation", "total"], required = true, desc = "Voltage level in kV, transformer losses, or the total", example = "132" },
+  { name = "losses_mwh", type = "number", unit = "MWh", required = true, warn_min = 0, desc = "Losses at this level in the month", example = 2100 },
+  { name = "losses_pct", type = "number", unit = "%", warn_min = 0, warn_max = 15, desc = "Losses as a percentage of base_mwh", example = 2.5 },
+  { name = "base_mwh", type = "number", unit = "MWh", min = 0, desc = "Energy the percentage is taken on, such as the energy entering this level", example = 84000 },
+  { name = "method", type = "enum", enum = ["metered", "estimated", "state_estimator", "other"], desc = "How the figure is obtained", example = "metered" },
+  { name = "meters_used", type = "text", desc = "Meters or points the figure comes from", example = "132 kV injection meters minus 33 kV BSP meters" },
+  { name = "notes", type = "text", desc = "If scope is other, the area; anything else", example = "" },
+]
+
+[[sheets]]
+name = "substation_monthly"
+table = "ncc_substation_monthly"
+title = "Substation loads"
+grain = "one row per substation (or metering point) per month"
+key = ["month", "substation", "metering_point"]
+notes = "Only if your Summaries do not give these. All substations if that is easiest; at least the Central ones. One row per substation, or one per metering point if that is how you report. load_basis says whether the load is before or after generation embedded at 33 kV."
+columns = [
+  { name = "month", type = "month", required = true, desc = "Calendar month", example = "2026-03" },
+  { name = "substation", type = "text", required = true, desc = "Substation name as you use it; we map names to codes", example = "Example A" },
+  { name = "metering_point", type = "text", desc = "Transformer, feeder group or meter, if not the whole substation", example = "EXA T1+T2 33 kV" },
+  { name = "metering_kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Voltage where the load is measured", example = 33 },
+  { name = "energy_mwh", type = "number", unit = "MWh", required = true, warn_min = 0, desc = "Energy supplied in the month", example = 20000 },
+  { name = "peak_mw", type = "number", unit = "MW", required = true, warn_min = 0, warn_max = 1000, desc = "Highest demand in the month", example = 40 },
+  { name = "peak_at", type = "datetime", desc = "Date and time of that peak (EAT)", example = "2026-03-12 20:00" },
+  { name = "peak_mvar", type = "number", unit = "MVAr", desc = "Reactive power at the time of the peak", example = 12 },
+  { name = "coincident_mw", type = "number", unit = "MW", desc = "Demand at the hour of the system peak", example = 38 },
+  { name = "min_mw", type = "number", unit = "MW", desc = "Lowest demand in the month", example = 15 },
+  { name = "load_basis", type = "enum", enum = ["net", "gross", "unknown"], desc = "net = after embedded generation (what the grid supplies); gross = includes demand met by embedded plants", example = "net" },
+  { name = "quality", type = "enum", enum = ["actual", "estimated", "partial"], desc = "actual = metered all month; estimated; partial = some days estimated or missing", example = "actual" },
+  { name = "notes", type = "text", desc = "Anything else", example = "" },
+]
+
+[[sheets]]
+name = "generation_monthly"
+table = "ncc_generation_monthly"
+title = "Generation by plant"
+grain = "one row per plant per month"
+key = ["month", "plant"]
+notes = "Only if your Summaries do not give these. Every plant on the national grid, including plants on 33 kV feeders, and the imports."
+columns = [
+  { name = "month", type = "month", required = true, desc = "Calendar month", example = "2026-03" },
+  { name = "plant", type = "text", required = true, desc = "Plant name as you use it", example = "Example Solar" },
+  { name = "technology", type = "enum", enum = ["hydro", "solar", "thermal", "bagasse", "wind", "import", "other"], desc = "Technology", example = "solar" },
+  { name = "connection_substation", type = "text", desc = "Grid substation it connects to, or whose 33 kV feeder it is on", example = "Example B" },
+  { name = "connection_kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Connection voltage", example = 33 },
+  { name = "sent_out_mwh", type = "number", unit = "MWh", required = true, warn_min = 0, desc = "Energy sent out in the month", example = 1500 },
+  { name = "peak_mw", type = "number", unit = "MW", min = 0, desc = "Highest output in the month", example = 10 },
+  { name = "availability_pct", type = "number", unit = "%", min = 0, max = 100, desc = "Availability in the month", example = 98 },
+  { name = "metered", type = "yn", desc = "Y if sent_out_mwh is metered; N if estimated", example = "Y" },
+  { name = "notes", type = "text", desc = "Anything else", example = "" },
+]
+
+[[sheets]]
+name = "boundary_meters"
+table = "ncc_boundary_meter"
+title = "Meters on circuits crossing the Central boundary"
+grain = "one row per meter per month per direction"
+key = ["month", "meter_id", "direction"]
+notes = "Every circuit that links a Central substation to one outside, including the 400 kV infeed to Kawanda, Bujagali-Kawanda and Masaka-Mbarara. Two rows per meter per month, import and export, even if one is zero. If a circuit is metered at both ends, send both meters and mark the one you use for accounting as main. List any boundary circuit with no meter in Q3."
+columns = [
+  { name = "month", type = "month", required = true, desc = "Calendar month", example = "2026-03" },
+  { name = "meter_id", type = "text", required = true, desc = "Your meter ID or serial number", example = "EXA-M01" },
+  { name = "substation", type = "text", required = true, desc = "The Central substation the circuit connects to", example = "Example A" },
+  { name = "circuit", type = "text", required = true, desc = "Line or transformer the meter is on, as you name it", example = "Example A - Example B circuit 1" },
+  { name = "far_end_substation", type = "text", desc = "Substation or plant at the other end of the circuit", example = "Example B" },
+  { name = "circuit_kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Voltage of the circuit at the meter", example = 220 },
+  { name = "line_end", type = "text", desc = "Substation where the meter sits", example = "Example A" },
+  { name = "hv_or_lv", type = "enum", enum = ["hv", "lv", "na"], desc = "On a transformer: the side the meter is on; na for a line", example = "na" },
+  { name = "direction", type = "enum", enum = ["import", "export"], required = true, desc = "import = into Central; export = out of Central", example = "import" },
+  { name = "energy_mwh", type = "number", unit = "MWh", required = true, min = 0, desc = "Active energy in this direction, CT and VT ratios applied", example = 30000 },
+  { name = "energy_mvarh", type = "number", unit = "MVArh", desc = "Reactive energy in this direction, if registered", example = 6000 },
+  { name = "accuracy_class", type = "text", desc = "Meter accuracy class", example = "0.2S" },
+  { name = "ct_vt_class", type = "text", desc = "Accuracy class of the CT and VT feeding the meter, if known", example = "CT 0.2S, VT 0.2" },
+  { name = "main_or_check", type = "enum", enum = ["main", "check"], desc = "main = used for energy accounting; check = a second meter on the same circuit", example = "main" },
+  { name = "estimated", type = "yn", desc = "Y if any part of the month is estimated or substituted", example = "N" },
+  { name = "notes", type = "text", desc = "Meter changes, faults or gaps; anything else", example = "" },
+]
+
+[[sheets]]
+name = "internal_meters"
+table = "ncc_internal_meter"
+title = "Meters inside Central: generators, bulk supply points, direct customers"
+grain = "one row per meter per month per direction"
+key = ["month", "meter_id", "direction"]
+required_sheet = false
+notes = "Request 07 asks for this sheet. Every generator inside Central (any size or voltage, including plants on 33 kV feeders), every bulk supply point to UEDCL and every direct customer, plus station-supply meters if you have them. Two rows per meter per month, into_grid and out_of_grid, even if one is zero. A direct customer is named only by a code such as DC-1, never by name."
+columns = [
+  { name = "month", type = "month", required = true, desc = "Calendar month", example = "2026-03" },
+  { name = "meter_id", type = "text", required = true, desc = "Your meter ID or serial number", example = "EXB-M07" },
+  { name = "substation", type = "text", required = true, desc = "Grid substation the point is at, or whose 33 kV feeder it is on", example = "Example B" },
+  { name = "point_type", type = "enum", enum = ["generator", "bsp", "direct_customer", "station_supply", "other"], required = true, desc = "What the meter measures; bsp = a bulk supply point to UEDCL", example = "generator" },
+  { name = "point_name", type = "text", required = true, desc = "Plant or supply point name; for a direct customer a code such as DC-1, never the name", example = "Example Solar" },
+  { name = "circuit", type = "text", desc = "Transformer, bay or 33 kV feeder the meter is on, as you name it", example = "EXB 33 kV feeder 2" },
+  { name = "connection_kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Grid voltage the plant or customer connects at", example = 33 },
+  { name = "metering_kv", type = "number", unit = "kV", min = 0.4, max = 500, desc = "Voltage at the meter", example = 33 },
+  { name = "hv_or_lv", type = "enum", enum = ["hv", "lv", "na"], desc = "On a transformer: the side the meter is on; na otherwise", example = "na" },
+  { name = "direction", type = "enum", enum = ["into_grid", "out_of_grid"], required = true, desc = "into_grid = a plant's output, or reverse flow at a supply point; out_of_grid = deliveries, or a plant's own use", example = "into_grid" },
+  { name = "energy_mwh", type = "number", unit = "MWh", required = true, min = 0, desc = "Active energy in this direction, CT and VT ratios applied", example = 1500 },
+  { name = "energy_mvarh", type = "number", unit = "MVArh", desc = "Reactive energy in this direction, if registered", example = 120 },
+  { name = "accuracy_class", type = "text", desc = "Meter accuracy class", example = "0.5S" },
+  { name = "ct_vt_class", type = "text", desc = "Accuracy class of the CT and VT feeding the meter, if known", example = "CT 0.5S, VT 0.5" },
+  { name = "main_or_check", type = "enum", enum = ["main", "check"], desc = "main = used for energy accounting; check = a second meter on the same point", example = "main" },
+  { name = "estimated", type = "yn", desc = "Y if any part of the month is estimated or substituted", example = "N" },
+  { name = "substation_load_basis", type = "enum", enum = ["net", "gross", "unknown"], desc = "Plants only: net = NCC's reported load for this substation already has this plant's output taken off; gross = it is added back", example = "net" },
+  { name = "notes", type = "text", desc = "Meter changes, faults or gaps; anything else", example = "" },
+]
+
+[[sheets]]
+name = "deemed_unserved"
+table = "ncc_deemed_unserved"
+title = "Deemed energy and unserved energy, kept apart"
+grain = "one row per month, category, plant or substation, and cause"
+key = ["month", "category", "plant_or_substation", "cause"]
+notes = "Never add deemed and unserved energy together. deemed = energy a plant could have delivered but the grid did not take, paid under its agreement: one row per plant. unserved = demand lost to faults or outages, and load_shed = demand cut on NCC instruction, including curtailment of large customers: one row per substation. Give the cause NCC recorded at the time. Describe customers by kind only, never by name."
+columns = [
+  { name = "month", type = "month", required = true, desc = "Calendar month", example = "2026-03" },
+  { name = "category", type = "enum", enum = ["deemed", "unserved", "load_shed"], required = true, desc = "deemed = generation not taken; unserved = demand lost to faults or outages; load_shed = demand cut on instruction", example = "deemed" },
+  { name = "plant_or_substation", type = "text", required = true, desc = "Plant for deemed rows; substation for unserved and load_shed rows", example = "Example Solar" },
+  { name = "energy_mwh", type = "number", unit = "MWh", required = true, min = 0, desc = "Energy in the month", example = 150 },
+  { name = "amount_ugx", type = "number", unit = "UGX", min = 0, desc = "Deemed rows: amount payable, if the Summary gives it", example = 15000000 },
+  { name = "cause", type = "enum", enum = ["network_constraint", "generation_shortfall", "surplus", "other", "unknown"], desc = "Cause NCC recorded; surplus = no demand for the energy", example = "network_constraint" },
+  { name = "constraint_element", type = "text", desc = "For a network constraint: the line, transformer or feeder that limited it", example = "Example B transformer T1" },
+  { name = "notes", type = "text", desc = "Anything else, such as the kind of customer curtailed (data centre, industrial)", example = "" },
+]
+
+[[sheets]]
+name = "sample_days"
+table = "ncc_sample_day"
+title = "Sample days for SCADA"
+grain = "one row per month"
+key = ["month"]
+notes = "NCC SCADA (request 06) exports these days first, so please send this sheet early. Peak day = the day of the month's system peak. Off-peak day = the day with the month's lowest demand, usually a Sunday or public holiday, not a day with a major outage."
+columns = [
+  { name = "month", type = "month", required = true, desc = "Calendar month", example = "2026-03" },
+  { name = "peak_day", type = "date", required = true, desc = "Day of the month's system peak", example = "2026-03-12" },
+  { name = "offpeak_day", type = "date", required = true, desc = "Day with the month's lowest demand, not a day with a major outage", example = "2026-03-15" },
+  { name = "constraint_day", type = "date", desc = "A day this month when the Kawanda constraint bound, if NCC knows of one", example = "" },
+  { name = "note", type = "text", desc = "Anything unusual about these days", example = "Example: all units available on the peak day" },
+]
